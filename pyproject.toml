@@ -1,0 +1,36 @@
+[project]
+name = "tma4320_project3"
+version = "0.1.0"
+description = ""
+readme = "README.md"
+authors = [
+    { name = "Kristoffer Eide" },
+    { name = "Frederik Alexander Ådlandsvik" },
+    { name = "Samuel Vasshus" },
+    { name = "Elias Veines-Jensen" },
+]
+requires-python = ">=3.13"
+dependencies = [
+    "matplotlib>=3.9",
+    "numba>=0.61",
+    "numpy>=2.0",
+]
+
+[dependency-groups]
+dev = [
+    "ipykernel>=6.29",
+    "pytest>=8.0",
+    "ruff>=0.6",
+]
+
+[build-system]
+requires = ["uv_build>=0.8.15,<0.9.0"]
+build-backend = "uv_build"
+
+[tool.pyright]
+venvPath = "."
+venv = ".venv"
+
+[tool.ruff]
+line-length = 100
+target-version = "py313"
