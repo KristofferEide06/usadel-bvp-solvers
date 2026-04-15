@@ -2,6 +2,7 @@ import numpy as np
 import numpy.typing as npt
 from typing import cast
 from collections.abc import Callable
+from scipy.integrate import solve_bvp
 
 from .transform import (
     complex_to_real,
@@ -81,9 +82,9 @@ def make_bc(
     delta: np.float64,
     zeta: np.float64,
     l: np.float64,
-    superconductor: bool,
-    phi_L: np.float64 = 0.0,
-    phi_R: np.float64 = 0.0
+    phi_L: np.float64,
+    phi_R: np.float64,
+    superconductor: bool
     ) -> Callable[
     [npt.NDArray[np.float64], npt.NDArray[np.float64]],
     npt.NDArray[np.float64]
@@ -95,9 +96,9 @@ def make_bc(
         delta (np.float64): Imaginary energy shift
         zeta (np.float64): Interface parameter
         l (np.float64): Length of normal region
-        superconductor (bool): If normal metal is interfaced with two supeorconductors
-        phi_L (float, optional): Left superconducting phase. Defaults to 0.0.
-        phi_R (float, optional): Right superconducting phase. Defaults to 0.0.
+        phi_L (float): Left superconducting phase.
+        phi_R (float): Right superconducting phase.
+        superconductor (bool): True if normal metal is interfaced with two superconductors
 
     Returns:
         Callable[ [npt.NDArray[np.float64], npt.NDArray[np.float64]], npt.NDArray[np.float64] ]: bc function
@@ -121,9 +122,9 @@ def make_bc(
 
         N_L, N_tilde_L = N_fun(gamma_L, gamma_tilde_L)
         N_R, N_tilde_R = N_fun(gamma_R, gamma_tilde_R)
-        I = np.eye(l_gamma.shape())
+        I = np.eye(l_gamma.shape[0])
         
-        l_w_boundary = l_w + 1/(zeta * l) * (I - l_gamma @ gamma_tilde_L) @ N_L @ [gamma_L - l_gamma]
+        l_w_boundary = l_w + 1/(zeta * l) * (I - l_gamma @ gamma_tilde_L) @ N_L @ (gamma_L - l_gamma)
         l_w_tilde_boundary = l_w_tilde + 1/(zeta * l) * (I - l_gamma_tilde @ gamma_L) @ N_tilde_L @ (gamma_tilde_L - l_gamma_tilde)
         r_w_boundary = r_w - 1/(zeta * l) * (I - r_gamma @ gamma_tilde_R) @ N_R @ (gamma_R - r_gamma)
         r_w_tilde_boundary = r_w_tilde - 1/(zeta * l) * (I - l_gamma_tilde @ gamma_R) @ N_tilde_R @ (gamma_tilde_R - l_gamma_tilde)
@@ -131,3 +132,59 @@ def make_bc(
         return usadel_matrix_to_vec(l_w_boundary, l_w_tilde_boundary, r_w_boundary, r_w_tilde_boundary)
     
     return bc
+
+def usadel_solver(
+    x: npt.NDArray[np.float64],
+    y: npt.NDArray[np.float64],
+    epsilon: np.float64,
+    delta: np.float64,
+    zeta: np.float64,
+    l: np.float64,
+    phi_L: np.float64,
+    phi_R: np.float64,
+    superconductor: bool
+    ) -> tuple[
+        npt.NDArray[np.complex128],
+        npt.NDArray[np.complex128],
+        npt.NDArray[np.complex128],
+        npt.NDArray[np.complex128]
+    ]:
+    """Calcualtes the Riccati parameters for given x and y
+
+    Args:
+        x (np.NDArray[np.float64]): Array to find solution on
+        y (np.NDARray[np.float64]): Initial guess
+        epsilon (np.float64): Quasiparticle excitation energy
+        delta (np.float64): Imaginary energy shift
+        zeta (np.float64): Interface parameter
+        l (np.float64): Length of normal region
+        phi_L (float): Left superconducting phase.
+        phi_R (float): Right superconducting phase.
+        superconductor (bool): True if normal metal is interfaced with two superconductors
+
+    Returns:
+        tuple[npt.NDArray[
+            np.complex128],
+            npt.NDArray[np.complex128],
+            npt.NDArray[np.complex128],
+            npt.NDArray[np.complex128]
+            ]: Arrays of values for gamma, gamma_tilde, w, w_tilde arrays at all x positions
+    """
+    solution = solve_bvp(
+        make_diff_system(epsilon, delta),
+        make_bc(epsilon, delta, zeta, l, phi_L, phi_R, superconductor),
+        x, y
+    )  
+    
+    sol = solution.sol(x)
+    m = sol.shape[1]
+    
+    gamma_arr, gamma_tilde_arr, w_arr, w_tilde_arr = tuple([np.empty((m, 2, 2), dtype = np.complex128) for i in range(4)])
+    
+    for j in range(m):
+        gamma_arr[j], gamma_tilde_arr[j], w_arr[j], w_tilde_arr[j] = vec_to_usadel_matrix(sol[:, j])
+
+    
+    return gamma_arr, gamma_tilde_arr, w_arr, w_tilde_arr
+  
+  
