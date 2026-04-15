@@ -60,18 +60,18 @@ def N_deriv_fun(
     return d_N, d_N_tilde    
 
 def Riccati_superconductor(
-    epsilon: float,
-    delta: float,
-    phi_L: float,
-    phi_R: float
+    epsilon: np.float64,
+    delta: np.float64,
+    phi_L: np.float64,
+    phi_R: np.float64
 ) -> npt.NDArray[np.complex128]:
     """Calculates Riccati boundary matrices for normal metal insterfaced with two superconductors
 
     Args:
-        epsilon (float): Quasiparticle excitation energy
-        delta (float): Imaginary energy shift
-        phi_L (float, optional): Left superconducting phase. 
-        phi_R (float, optional): Right superconducting phase. 
+        epsilon (np.float64): Quasiparticle excitation energy
+        delta (np.float64): Imaginary energy shift
+        phi_L (np.float64, optional): Left superconducting phase. 
+        phi_R (np.float64, optional): Right superconducting phase. 
         
     Returns:
         npt.NDArray[np.complex128]: Array of matrices gamma_L, gamma_L_tilde, gamma_R, gamma_R_tilde respectively

@@ -19,15 +19,15 @@ from .riccati import (
 
 def vec_deriv(
     vec: npt.NDArray[np.float64],
-    epsilon: float,
-    delta: float
+    epsilon: np.float64,
+    delta: np.float64
     ) -> npt.NDArray[np.float64]:
     """Calcualtes derivative of flattened vector
 
     Args:
         vec (npt.NDArray[np.float64]): Flattened vector
-        epsilon (float): Quasiparticle excitation energy
-        delta (float): Imaginary energy shift
+        epsilon (np.float64): Quasiparticle excitation energy
+        delta (np.float64): Imaginary energy shift
 
     Returns:
         npt.NDArray[np.float64]: derivative of flattened vector
@@ -49,8 +49,8 @@ def vec_deriv(
     )
 
 def make_diff_system(
-    epsilon: float,
-    delta: float,
+    epsilon: np.float64,
+    delta: np.float64,
     ) -> Callable[
     [npt.NDArray[np.float64], npt.NDArray[np.float64]],
     npt.NDArray[np.float64]
@@ -58,8 +58,8 @@ def make_diff_system(
     """Crates diff system function for bvp solver, dependent on necessary physical parameters
 
     Args:
-        epsilon (float): Quasiparticle excitation energy
-        delta (float): Imaginary energy shift
+        epsilon (np.float64): Quasiparticle excitation energy
+        delta (np.float64): Imaginary energy shift
 
     Returns:
         Callable[ [npt.NDArray[np.float64], npt.NDArray[np.float64]], npt.NDArray[np.float64] ]: diff_system function
@@ -77,10 +77,10 @@ def make_diff_system(
     return diff_system
 
 def make_bc(
-    epsilon: float,
-    delta: float,
-    zeta: float,
-    l: float,
+    epsilon: np.float64,
+    delta: np.float64,
+    zeta: np.float64,
+    l: np.float64,
     superconductor: bool,
     phi_L: np.float64 = 0.0,
     phi_R: np.float64 = 0.0
@@ -91,10 +91,10 @@ def make_bc(
     """Creates boundary condition function for bvp_solver
 
     Args:
-        epsilon (float): Quasiparticle excitation energy
-        delta (float): Imaginary energy shift
-        zeta (float): Interface parameter
-        l (float): Length of normal region
+        epsilon (np.float64): Quasiparticle excitation energy
+        delta (np.float64): Imaginary energy shift
+        zeta (np.float64): Interface parameter
+        l (np.float64): Length of normal region
         superconductor (bool): If normal metal is interfaced with two supeorconductors
         phi_L (float, optional): Left superconducting phase. Defaults to 0.0.
         phi_R (float, optional): Right superconducting phase. Defaults to 0.0.
