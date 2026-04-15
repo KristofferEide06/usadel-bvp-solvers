@@ -70,8 +70,8 @@ def Riccati_superconductor(
     Args:
         epsilon (float): Quasiparticle excitation energy
         delta (float): Imaginary energy shift
-        phi_L (float, optional): Left superconducting phase. 
-        phi_R (float, optional): Right superconducting phase. 
+        phi_L (np.float64, optional): Left superconducting phase. 
+        phi_R (np.float64, optional): Right superconducting phase. 
         
     Returns:
         npt.NDArray[np.complex128]: Array of matrices gamma_L, gamma_L_tilde, gamma_R, gamma_R_tilde respectively
@@ -81,10 +81,10 @@ def Riccati_superconductor(
     s = lambda sigma, epsilon = epsilon, delta = delta: np.sinh(vartheta(epsilon, delta, sigma))
     c = lambda sigma, epsilon = epsilon, delta = delta: np.cosh(vartheta(epsilon, delta, sigma))
 
-    gamma_L = np.matrix([0, s(1) / (1 + c(1))], [s(-1)/(1 + c(-1)), 0]) * np.exp(-1j * phi_L)
-    gamma_L_tilde = np.matrix([0, s(1) / (1 + c(-1))], [s(1) / (1 + c(1)), 0]) * np.exp(-1j * phi_L)
-    gamma_R = np.matrix([0, s(1) / (1 + c(1))], [s(-1) / (1 + c(-1)), 0]) * np.exp(-1j * phi_R)
-    gamma_R_tilde = np.matrix([0, s(1) / (1 + c(-1))], [s(1) / (1 + c(1)), 0]) * np.exp(-1j * np.exp(-1j * phi_R))
+    gamma_L = np.block([[0, s(1) / (1 + c(1))], [s(-1)/(1 + c(-1)), 0]])* np.exp(-1j * phi_L)
+    gamma_L_tilde = np.block([[0, s(1) / (1 + c(-1))], [s(1) / (1 + c(1)), 0]]) * np.exp(-1j * phi_L)
+    gamma_R = np.block([[0, s(1) / (1 + c(1))], [s(-1)/(1 + c(-1)), 0]])* np.exp(-1j * phi_R)
+    gamma_R_tilde = np.block([[0, s(1) / (1 + c(-1))], [s(1) / (1 + c(1)), 0]]) * np.exp(-1j * phi_R)
     
     return np.array([gamma_L, gamma_L_tilde, gamma_R, gamma_R_tilde])
 
@@ -97,9 +97,9 @@ def rho_3_fun(matrix_shape: tuple[int, ...] = (2, 2)) -> npt.NDArray[np.complex1
     Returns:
         npt.NDArray[np.complex128]: Pauli-z in nambu space
     """
-    I = np.eye(matrix_shape[0])
+    I = np.eye(matrix_shape[0], dtype = np.complex128)
     
-    return np.matrix([I, np.zeros_like(I)], [np.zeros_like(I), -I])
+    return np.block([[I, np.zeros_like(I)], [np.zeros_like(I), -I]])
 
 def green_fun(
     gamma: npt.NDArray[np.complex128],
@@ -115,9 +115,9 @@ def green_fun(
         npt.NDArray[np.complex128]: Green function
     """
     N, N_tilde = N_fun(gamma, gamma_tilde)
-    I = np.eye(gamma.shape[0])
+    I = np.eye(gamma.shape[0], dtype = np.complex128)
     
-    return np.matrix([2 * N - I, 2 * N @ gamma], [-2 * N_tilde @ gamma_tilde, -2 * N_tilde + I]) 
+    return np.block([[2 * N - I, 2 * N @ gamma], [-2 * N_tilde @ gamma_tilde, -2 * N_tilde + I]]) 
 
       
 def green_fun_deriv(
@@ -138,7 +138,7 @@ def green_fun_deriv(
         npt.NDArray[np.complex128]: d_x g
     """
     N, N_tilde = N_fun(gamma, gamma_tilde)
-    d_N, d_N_tilde = N_deriv_fun(gamma, gamma_tilde)
+    d_N, d_N_tilde = N_deriv_fun(gamma, w, w_tilde, gamma_tilde)
     
     return 2 * np.matrix(
         [d_N, N @ w + d_N @ gamma], 

@@ -9,7 +9,7 @@ from .riccati import(
     green_fun_deriv
 )
 
-def dos(
+def dos_fun(
     gamma: npt.NDArray[np.complex128],
     gamma_tilde: npt.NDArray[np.complex128]
 ) -> np.float64:
@@ -27,7 +27,7 @@ def dos(
     
     return np.real(np.trace(rho_3 @ greens)) / 4
 
-def current_integrand(
+def current_integrand_fun(
     gamma: npt.NDArray[np.complex128],
     gamma_tilde: npt.NDArray[np.complex128],
     w: npt.NDArray[np.complex128],
@@ -44,6 +44,8 @@ def current_integrand(
     Returns:
         np.float64: Current integrand
     """
+    
+    rho_3 = rho_3_fun()
     g = green_fun(gamma, gamma_tilde)
     d_g = green_fun_deriv(gamma, gamma_tilde, w, w_tilde)
     
