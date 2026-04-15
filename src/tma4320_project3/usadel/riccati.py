@@ -60,16 +60,16 @@ def N_deriv_fun(
     return d_N, d_N_tilde    
 
 def Riccati_superconductor(
-    epsilon: np.float64,
-    delta: np.float64,
-    phi_L: np.float64,
-    phi_R: np.float64
+    epsilon: float,
+    delta: float,
+    phi_L: float,
+    phi_R: float
 ) -> npt.NDArray[np.complex128]:
     """Calculates Riccati boundary matrices for normal metal insterfaced with two superconductors
 
     Args:
-        epsilon (np.float64): Quasiparticle excitation energy
-        delta (np.float64): Imaginary energy shift
+        epsilon (float): Quasiparticle excitation energy
+        delta (float): Imaginary energy shift
         phi_L (np.float64, optional): Left superconducting phase. 
         phi_R (np.float64, optional): Right superconducting phase. 
         
@@ -97,7 +97,7 @@ def rho_3_fun(matrix_shape: tuple[int, ...] = (2, 2)) -> npt.NDArray[np.complex1
     Returns:
         npt.NDArray[np.complex128]: Pauli-z in nambu space
     """
-    I = np.eye(matrix_shape[0])
+    I = np.eye(matrix_shape[0], dtype = np.complex128)
     
     return np.block([[I, np.zeros_like(I)], [np.zeros_like(I), -I]])
 
@@ -115,7 +115,7 @@ def green_fun(
         npt.NDArray[np.complex128]: Green function
     """
     N, N_tilde = N_fun(gamma, gamma_tilde)
-    I = np.eye(gamma.shape[0])
+    I = np.eye(gamma.shape[0], dtype = np.complex128)
     
     return np.block([[2 * N - I, 2 * N @ gamma], [-2 * N_tilde @ gamma_tilde, -2 * N_tilde + I]]) 
 
@@ -138,7 +138,7 @@ def green_fun_deriv(
         npt.NDArray[np.complex128]: d_x g
     """
     N, N_tilde = N_fun(gamma, gamma_tilde)
-    d_N, d_N_tilde = N_deriv_fun(gamma, gamma_tilde)
+    d_N, d_N_tilde = N_deriv_fun(gamma, w, w_tilde, gamma_tilde)
     
     return 2 * np.matrix(
         [d_N, N @ w + d_N @ gamma], 
