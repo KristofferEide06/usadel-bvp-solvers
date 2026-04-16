@@ -67,7 +67,7 @@ def vec_deriv_vectorized(
         delta (float): Imaginary energy shift
 
     Returns:
-        npt.NDArray[np.float64]: derivative of flattened vector
+        npt.NDArray[np.float64]: derivative of the batch of flattened vectors
     """
 
     gamma, gamma_tilde, w, w_tilde = vec_to_usadel_matrix(vec)
@@ -101,7 +101,7 @@ def make_diff_system(
         x: npt.NDArray[np.float64], 
         vec: npt.NDArray[np.float64]
     ) -> npt.NDArray[np.float64]:
-        return vec_deriv_vectorized(vec, epsilon, delta)  # vec er (32, N_x)
+        return vec_deriv_vectorized(vec, epsilon, delta) 
     
     return diff_system
 
@@ -175,7 +175,8 @@ def usadel_solver(
         npt.NDArray[np.complex128],
         npt.NDArray[np.complex128],
         npt.NDArray[np.complex128],
-        npt.NDArray[np.complex128]
+        npt.NDArray[np.complex128],
+        npt.NDArray[np.float64]
     ]:
     """Calcualtes the Riccati parameters for given x and y
 
@@ -191,12 +192,13 @@ def usadel_solver(
         superconductor (bool): True if normal metal is interfaced with two superconductors
 
     Returns:
-        tuple[npt.NDArray[
-            np.complex128],
+        tuple[
             npt.NDArray[np.complex128],
             npt.NDArray[np.complex128],
-            npt.NDArray[np.complex128]
-            ]: Arrays of values for gamma, gamma_tilde, w, w_tilde arrays at all x positions
+            npt.NDArray[np.complex128],
+            npt.NDArray[np.complex128],
+            npt.NDArray[np.float64]
+        ]: Arrays of values for gamma, gamma_tilde, w, w_tilde and sol arrays at all x positions
     """
     solution = solve_bvp(
         make_diff_system(epsilon, delta),
@@ -211,8 +213,7 @@ def usadel_solver(
     
     for j in range(m):
         gamma_arr[j], gamma_tilde_arr[j], w_arr[j], w_tilde_arr[j] = vec_to_usadel_matrix(sol[:, j])
-
-    
-    return gamma_arr, gamma_tilde_arr, w_arr, w_tilde_arr
+  
+    return gamma_arr, gamma_tilde_arr, w_arr, w_tilde_arr, sol
   
   
