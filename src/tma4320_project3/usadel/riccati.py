@@ -2,6 +2,10 @@ import numpy as np
 import numpy.typing as npt
 from typing import cast
 from collections.abc import Callable
+
+from .einsum import(
+    bmm
+)
     
 def N_fun(
     gamma: npt.NDArray[np.complex128], 
@@ -22,15 +26,28 @@ def N_fun(
     Returns:
         tuple[ npt.NDArray[np.complex128], npt.NDArray[np.complex128] ]: normalization matrix), conjugate normalization matrix
     """
-    if not (gamma.shape == gamma_tilde.shape == (2, 2)):
-        raise ValueError("gamma and gamma_tilde should be of size (2,2)")
-    
-    I = np.eye(gamma.shape[0], dtype = np.complex128)
-    
-    N = cast(npt.NDArray[np.complex128], np.linalg.inv(I - gamma @ gamma_tilde))
-    N_tilde = cast(npt.NDArray[np.complex128], np.linalg.inv(I - gamma_tilde @ gamma))
+    single = gamma.ndim == 2
 
-    return N, N_tilde
+    if single:
+        gamma = gamma[..., np.newaxis]
+        gamma_tilde = gamma_tilde[..., np.newaxis]
+
+    if gamma.shape[:2] != (2, 2) or gamma.shape != gamma_tilde.shape:
+        raise ValueError("gamma and gamma_tilde should have shape (2,2) or (2,2,N_x)")
+    
+    N_x = gamma.shape[-1]
+    I = np.eye(2, dtype=np.complex128)[..., np.newaxis] * np.ones(N_x)
+
+    A = np.moveaxis(I - bmm(gamma, gamma_tilde), -1, 0)
+    B = np.moveaxis(I - bmm(gamma_tilde, gamma), -1, 0)
+    
+    N = cast(npt.NDArray[np.complex128], np.moveaxis(np.linalg.inv(A), 0, -1))
+    N_tilde = cast(npt.NDArray[np.complex128], np.moveaxis(np.linalg.inv(B), 0, -1))
+
+    if single:
+        return N.squeeze(axis=-1), N_tilde.squeeze(axis=-1)
+    else:
+        return N, N_tilde
 
 def N_deriv_fun(
     gamma: npt.NDArray[np.complex128],
@@ -53,11 +70,11 @@ def N_deriv_fun(
         tuple[ npt.NDArray[np.complex128], npt.NDArray[np.complex128] ]: d_x N, d_x N_tilde
     """
     N, N_tilde = N_fun(gamma, gamma_tilde)
-    
-    d_N = N @ (w @ gamma_tilde + gamma @ w_tilde) @ N
-    d_N_tilde = N_tilde @ (w_tilde @ gamma + gamma_tilde @ w) @ N_tilde
-    
-    return d_N, d_N_tilde    
+
+    d_N = bmm(bmm(N, bmm(w, gamma_tilde) + bmm(gamma, w_tilde)), N)
+    d_N_tilde = bmm(bmm(N_tilde, bmm(w_tilde, gamma) + bmm(gamma_tilde, w)), N_tilde)
+
+    return d_N, d_N_tilde  
 
 def Riccati_superconductor(
     epsilon: float,
@@ -115,9 +132,22 @@ def green_fun(
         npt.NDArray[np.complex128]: Green function
     """
     N, N_tilde = N_fun(gamma, gamma_tilde)
-    I = np.eye(gamma.shape[0], dtype = np.complex128)
-    
-    return np.block([[2 * N - I, 2 * N @ gamma], [-2 * N_tilde @ gamma_tilde, -2 * N_tilde + I]]) 
+    single = gamma.ndim == 2
+
+    if single:
+        I = np.eye(2, dtype=np.complex128)
+        return np.block([
+            [2*N - I, 2 * N @ gamma],
+            [-2 * N_tilde @ gamma_tilde, -2*N_tilde + I]
+        ])
+    else:
+        N_x = gamma.shape[-1]
+        I = np.eye(2, dtype=np.complex128)[..., np.newaxis] * np.ones(N_x)
+
+        first_row = np.concatenate([2*N - I, 2*bmm(N, gamma)], axis=1)
+        second_row = np.concatenate([-2*bmm(N_tilde, gamma_tilde), -2*N_tilde + I], axis=1)
+
+        return np.concatenate([first_row, second_row], axis=0)
 
       
 def green_fun_deriv(
@@ -137,11 +167,21 @@ def green_fun_deriv(
     Returns:
         npt.NDArray[np.complex128]: d_x g
     """
-    N, N_tilde = N_fun(gamma, gamma_tilde)
-    d_N, d_N_tilde = N_deriv_fun(gamma, w, w_tilde, gamma_tilde)
-    
-    return 2 * np.matrix(
-        [d_N, N @ w + d_N @ gamma], 
-        [-N_tilde @ w_tilde - d_N_tilde @ gamma_tilde, -d_N_tilde]
-        )
+    N, N_tilde   = N_fun(gamma, gamma_tilde)
+    d_N, d_N_tilde = N_deriv_fun(gamma, gamma_tilde, w, w_tilde)
+    single = gamma.ndim == 2
+
+    if single:
+        return 2 * np.block([
+            [d_N, N @ w + d_N @ gamma],
+            [-N_tilde @ w_tilde - d_N_tilde @ gamma_tilde, -d_N_tilde]
+        ])
+    else:
+        first_row = np.concatenate([2*d_N, 2*(bmm(N, w) + bmm(d_N, gamma))], axis=1)
+        second_row = np.concatenate([
+            -2*(bmm(N_tilde, w_tilde) + bmm(d_N_tilde, gamma_tilde)),
+            -2*d_N_tilde
+        ], axis=1)
+
+        return np.concatenate([first_row, second_row], axis=0)
 

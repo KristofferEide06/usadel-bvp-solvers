@@ -18,6 +18,10 @@ from .riccati import (
   Riccati_superconductor  
 )
 
+from .einsum import (
+    bmm
+)
+
 def vec_deriv(
     vec: npt.NDArray[np.float64],
     epsilon: float,
@@ -49,6 +53,34 @@ def vec_deriv(
         d_w_tilde
     )
 
+
+def vec_deriv_vectorized(
+    vec: npt.NDArray[np.float64],
+    epsilon: float,
+    delta: float
+) -> npt.NDArray[np.float64]:
+    """Calcualtes derivative of a batch of flattened vectors
+
+    Args:
+        vec (npt.NDArray[np.float64]): Flattened vector (n_flat, N_x)
+        epsilon (float): Quasiparticle excitation energy
+        delta (float): Imaginary energy shift
+
+    Returns:
+        npt.NDArray[np.float64]: derivative of flattened vector
+    """
+
+    gamma, gamma_tilde, w, w_tilde = vec_to_usadel_matrix(vec)
+
+    N, N_tilde = N_fun(gamma, gamma_tilde)
+
+    d_gamma = w
+    d_gamma_tilde = w_tilde
+    d_w = (-2j * (epsilon + 1j * delta) * gamma - 2 * bmm(bmm(bmm(w, N_tilde), gamma_tilde), w))
+    d_w_tilde = (-2j * (epsilon + 1j * delta) * gamma_tilde - 2 * bmm(bmm(bmm(w_tilde, N), gamma), w_tilde))
+
+    return usadel_matrix_to_vec(d_gamma, d_gamma_tilde, d_w, d_w_tilde)
+
 def make_diff_system(
     epsilon: float,
     delta: float,
@@ -68,12 +100,8 @@ def make_diff_system(
     def diff_system(
         x: npt.NDArray[np.float64], 
         vec: npt.NDArray[np.float64]
-        ) -> npt.NDArray[np.float64]:
-        result = np.zeros_like(vec)
-        
-        for i in range(len(x)):
-            result[:, i] = vec_deriv(vec[:,i], epsilon , delta)
-        return result
+    ) -> npt.NDArray[np.float64]:
+        return vec_deriv_vectorized(vec, epsilon, delta)  # vec er (32, N_x)
     
     return diff_system
 
@@ -122,12 +150,12 @@ def make_bc(
 
         N_L, N_tilde_L = N_fun(gamma_L, gamma_tilde_L)
         N_R, N_tilde_R = N_fun(gamma_R, gamma_tilde_R)
-        I = np.eye(l_gamma.shape[0])
-        
-        l_w_boundary = l_w + 1/(zeta * l) * (I - l_gamma @ gamma_tilde_L) @ N_L @ (gamma_L - l_gamma)
-        l_w_tilde_boundary = l_w_tilde + 1/(zeta * l) * (I - l_gamma_tilde @ gamma_L) @ N_tilde_L @ (gamma_tilde_L - l_gamma_tilde)
-        r_w_boundary = r_w - 1/(zeta * l) * (I - r_gamma @ gamma_tilde_R) @ N_R @ (gamma_R - r_gamma)
-        r_w_tilde_boundary = r_w_tilde - 1/(zeta * l) * (I - l_gamma_tilde @ gamma_R) @ N_tilde_R @ (gamma_tilde_R - l_gamma_tilde)
+        I = np.eye(2, dtype=np.complex128)
+
+        l_w_boundary = (l_w + 1/(zeta * l) * (I - l_gamma @ gamma_tilde_L) @ N_L @ (gamma_L - l_gamma))
+        l_w_tilde_boundary = (l_w_tilde + 1/(zeta * l) * (I - l_gamma_tilde @ gamma_L) @ N_tilde_L @ (gamma_tilde_L - l_gamma_tilde))
+        r_w_boundary = (r_w - 1/(zeta * l) * (I - r_gamma @ gamma_tilde_R) @ N_R @ (gamma_R - r_gamma))
+        r_w_tilde_boundary = (r_w_tilde - 1/(zeta * l) * (I - r_gamma_tilde @ gamma_R) @ N_tilde_R @ (gamma_tilde_R - r_gamma_tilde))
         
         return usadel_matrix_to_vec(l_w_boundary, l_w_tilde_boundary, r_w_boundary, r_w_tilde_boundary)
     
