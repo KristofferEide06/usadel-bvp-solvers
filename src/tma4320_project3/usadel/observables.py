@@ -34,7 +34,7 @@ def current_integrand_fun(
     gamma_tilde: npt.NDArray[np.complex128],
     w: npt.NDArray[np.complex128],
     w_tilde: npt.NDArray[np.complex128],
-) -> float:
+ ) -> np.float64:
     """Calculates the current integrand
 
     Args:
@@ -44,7 +44,7 @@ def current_integrand_fun(
         w_tilde (npt.NDArray[np.complex128]): d_x gamma_tilde
 
     Returns:
-        float: current integrand
+        np.float64: current integrand
     """
     rho_3 = rho_3_fun()
     g = green_fun(gamma, gamma_tilde)
