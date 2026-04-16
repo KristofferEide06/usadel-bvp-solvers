@@ -124,10 +124,10 @@ def plot_observable(
     
     if variable_plot not in ['x', 'epsilon', 'delta', 'zeta', 'l', 'phi_L', 'phi_R']:
         raise ValueError("variable_plot must be 'x', 'epsilon', 'delta', 'zeta', 'l', 'phi_L' or 'phi_R'")
+    
     if (variable_plot == 'x' or variable_plot == 'epsilon') and observable == 'current':
         raise ValueError("variable_plot == 'x' or 'epsilon' and observable == 'current' is meaningless combination")
     
-  
     variables = {
         'x': x,
         'y': y,
@@ -143,8 +143,6 @@ def plot_observable(
     dynamic_var = variables[variable_plot]
     fixed_vars = {k: v for k, v in variables.items() if k!= variable_plot}
     
-    
-
     if variable_plot == 'x':
         gamma, gamma_tilde, w, w_tilde = usadel_solver(**variables)
         
@@ -156,6 +154,7 @@ def plot_observable(
                 y_vals[i] = dos_fun(gamma[i], gamma_tilde[i])
             elif observable == 'current_integrand':
                 y_vals[i] = current_integrand_fun(gamma[i], gamma_tilde[i], w[i], w_tilde[i])
+                
     else:
         dynamic_vals = np.asarray(dynamic_var, dtype = np.float64)
             
@@ -199,10 +198,12 @@ def plot_observable(
                     
     fig, ax = plt.subplots(figsize = figsize)
     ax.plot(x_vals, y_vals)
+    
     if variable_plot == 'x':
         ax.set_title(f"{observable} given {variable_plot}")
     else:
         ax.set_title(f"{observable} given {variable_plot} at x_index = {x_index}")
+        
     ax.set_xlabel(variable_plot)
     ax.set_ylabel(observable)
     ax.grid()

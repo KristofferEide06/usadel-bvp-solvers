@@ -80,6 +80,7 @@ def Riccati_superconductor(
     s = lambda sigma, epsilon = epsilon, delta = delta: np.sinh(vartheta(epsilon, delta, sigma))
     c = lambda sigma, epsilon = epsilon, delta = delta: np.cosh(vartheta(epsilon, delta, sigma))
 
+    #1 for positive (e.g. s_+), -1 for negative (e.g. s_-)
     gamma_L = np.block([[0, s(1) / (1 + c(1))], [s(-1)/(1 + c(-1)), 0]])* np.exp(-1j * phi_L)
     gamma_L_tilde = np.block([[0, s(1) / (1 + c(-1))], [s(1) / (1 + c(1)), 0]]) * np.exp(-1j * phi_L)
     gamma_R = np.block([[0, s(1) / (1 + c(1))], [s(-1)/(1 + c(-1)), 0]])* np.exp(-1j * phi_R)
@@ -137,10 +138,9 @@ def green_fun_deriv(
         npt.NDArray[np.complex128]: d_x g
     """
     N, N_tilde = N_fun(gamma, gamma_tilde)
-    d_N, d_N_tilde = N_deriv_fun(gamma, w, w_tilde, gamma_tilde)
+    d_N, d_N_tilde = N_deriv_fun(gamma, gamma_tilde, w, w_tilde)
     
-    return 2 * np.matrix(
-        [d_N, N @ w + d_N @ gamma], 
-        [-N_tilde @ w_tilde - d_N_tilde @ gamma_tilde, -d_N_tilde]
+    return 2 * np.block(
+        [[d_N, N @ w + d_N @ gamma], 
+        [-N_tilde @ w_tilde - d_N_tilde @ gamma_tilde, -d_N_tilde]]
         )
-

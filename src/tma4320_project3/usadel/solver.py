@@ -41,7 +41,7 @@ def vec_deriv(
         d_gamma,
         d_gamma_tilde,
         d_w,
-        d_w_tilde
+        d_w_tilde,
     )
 
 def make_diff_system(
@@ -179,7 +179,6 @@ def usadel_solver(
     for j in range(m):
         gamma_arr[j], gamma_tilde_arr[j], w_arr[j], w_tilde_arr[j] = vec_to_usadel_matrix(sol[:, j])
 
-    
     return gamma_arr, gamma_tilde_arr, w_arr, w_tilde_arr
   
   

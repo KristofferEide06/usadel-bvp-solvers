@@ -121,6 +121,7 @@ def vec_to_usadel_matrix(
         npt.NDArray[np.complex128]: array of matrices, where the columns represent gamma, gamma_tilde, w, w_tilde respectively
     """
     component_size = np.prod(matrix_shape)
+    
     if len(vec) % component_size != 0:
         raise ValueError("vector size and matrix_shape not compatible")
     
