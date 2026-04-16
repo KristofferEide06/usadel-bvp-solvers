@@ -106,9 +106,9 @@ def usadel_matrix_to_vec(
     
 def vec_to_usadel_matrix(
     vec: npt.NDArray[np.float64],
-    matrix_shape: tuple[int, ...] = (2, 2)
+    matrix_shape: tuple[int, ...] = (2, 2),
     ) -> npt.NDArray[np.complex128]:
-    """Transform vector into the form usadel matrices, gamma, gamma_tilde, w, w_tilde
+    """Transform vector into the usadel matrices, gamma, gamma_tilde, w, w_tilde
 
     Args:
         vec (npt.NDArray[np.float64]): vector to be transformed
