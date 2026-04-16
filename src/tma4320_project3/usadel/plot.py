@@ -132,7 +132,7 @@ def plot_observable(
     Raises:
         ValueError: if observable not amongst 'docs', 'current', 'current_integrand'
         ValueError: if variable_plot not amongst 'x', 'epsilon', 'delta', 'zeta', 'l', 'phi_L', 'phi_R'
-        ValueError: if (variable_plot == 'x' or variable_plot == 'epsilon') and observable == 'current'
+        ValueError: if (variable_plot == 'epsilon') and observable == 'current'
     """
     if observable not in ['dos', 'current', 'current_integrand']:
         raise ValueError("observable must be 'dos', 'current', or 'current_integrand'")
@@ -140,7 +140,7 @@ def plot_observable(
     if variable_plot not in ['x', 'epsilon', 'delta', 'zeta', 'l', 'phi_L', 'phi_R']:
         raise ValueError("variable_plot must be 'x', 'epsilon', 'delta', 'zeta', 'l', 'phi_L' or 'phi_R'")
     
-    if (variable_plot == 'x' or variable_plot == 'epsilon') and observable == 'current':
+    if variable_plot == 'epsilon' and observable == 'current':
         raise ValueError("variable_plot == 'x' or 'epsilon' and observable == 'current' is meaningless combination")
     
     variables = {
