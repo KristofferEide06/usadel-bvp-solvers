@@ -94,9 +94,9 @@ def Riccati_superconductor(
         npt.NDArray[np.complex128]: Array of matrices gamma_L, gamma_L_tilde, gamma_R, gamma_R_tilde respectively
     """
     
-    vartheta = lambda sigma, epsilon = epsilon, delta = delta: np.atanh(sigma/(epsilon + 1j * delta))
-    s = lambda sigma, epsilon = epsilon, delta = delta: np.sinh(vartheta(epsilon, delta, sigma))
-    c = lambda sigma, epsilon = epsilon, delta = delta: np.cosh(vartheta(epsilon, delta, sigma))
+    vartheta = lambda sigma: np.atanh(sigma / (epsilon + 1j * delta))
+    s = lambda sigma: np.sinh(vartheta(sigma))
+    c = lambda sigma: np.cosh(vartheta(sigma))
 
     gamma_L = np.block([[0, s(1) / (1 + c(1))], [s(-1)/(1 + c(-1)), 0]])* np.exp(-1j * phi_L)
     gamma_L_tilde = np.block([[0, s(1) / (1 + c(-1))], [s(1) / (1 + c(1)), 0]]) * np.exp(-1j * phi_L)
