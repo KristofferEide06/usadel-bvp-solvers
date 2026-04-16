@@ -167,7 +167,7 @@ def green_fun_deriv(
     Returns:
         npt.NDArray[np.complex128]: d_x g
     """
-    N, N_tilde   = N_fun(gamma, gamma_tilde)
+    N, N_tilde = N_fun(gamma, gamma_tilde)
     d_N, d_N_tilde = N_deriv_fun(gamma, gamma_tilde, w, w_tilde)
     single = gamma.ndim == 2
 

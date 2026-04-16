@@ -17,8 +17,8 @@ def complex_to_real(matrix: npt.NDArray[np.complex128]) -> npt.NDArray[np.float6
         matrix = matrix[..., np.newaxis]
 
     N_x = matrix.shape[-1]
-    real_arr = np.real(matrix).reshape(-1, N_x)  # (4, N_x)
-    im_arr   = np.imag(matrix).reshape(-1, N_x)  # (4, N_x)
+    real_arr = np.real(matrix).reshape(-1, N_x)
+    im_arr = np.imag(matrix).reshape(-1, N_x)
 
     result = np.concatenate([real_arr, im_arr], axis=0, dtype=np.float64)
     
