@@ -5,17 +5,13 @@ from collections.abc import Callable
 from scipy.integrate import solve_bvp
 
 from .transform import (
-    complex_to_real,
-    real_to_complex,
-    reshape_vec,
-    expand_vec,
     usadel_matrix_to_vec,
     vec_to_usadel_matrix,
 )
 
 from .riccati import (
   N_fun,
-  Riccati_superconductor  
+  Riccati_superconductor,
 )
 
 def vec_deriv(

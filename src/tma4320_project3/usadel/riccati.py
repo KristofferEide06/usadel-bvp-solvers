@@ -5,10 +5,10 @@ from collections.abc import Callable
     
 def N_fun(
     gamma: npt.NDArray[np.complex128], 
-    gamma_tilde: npt.NDArray[np.complex128]
+    gamma_tilde: npt.NDArray[np.complex128],
     ) -> tuple[
         npt.NDArray[np.complex128],
-        npt.NDArray[np.complex128]
+        npt.NDArray[np.complex128],
 ]:
     """Calculates the Riccati normalization matrices
 
@@ -20,7 +20,7 @@ def N_fun(
         ValueError: gamma and gamma_tilde should be of size (2,2)
 
     Returns:
-        tuple[ npt.NDArray[np.complex128], npt.NDArray[np.complex128] ]: normalization matrix), conjugate normalization matrix
+        tuple[ npt.NDArray[np.complex128], npt.NDArray[np.complex128] ]: normalization matrix, conjugate normalization matrix
     """
     if not (gamma.shape == gamma_tilde.shape == (2, 2)):
         raise ValueError("gamma and gamma_tilde should be of size (2,2)")
@@ -36,16 +36,16 @@ def N_deriv_fun(
     gamma: npt.NDArray[np.complex128],
     gamma_tilde: npt.NDArray[np.complex128],
     w: npt.NDArray[np.complex128],
-    w_tilde: npt.NDArray[np.complex128]
+    w_tilde: npt.NDArray[np.complex128],
     ) -> tuple[
     npt.NDArray[np.complex128],
-    npt.NDArray[np.complex128]
+    npt.NDArray[np.complex128],
 ]:
     """Calculates the derivative of the normalization matrix
 
     Args:
         gamma (npt.NDArray[np.complex128]): Riccati amplitude
-        gamma_tilde (npt.NDArray[np.complex128]): Conjugate Riccati amplitude
+        gamma_tilde (npt.NDArray[np.complex128]): conjugate Riccati amplitude
         w (npt.NDArray[np.complex128]): d_x gamma
         w_tilde (npt.NDArray[np.complex128]): d_x gamma_tilde
 
@@ -63,15 +63,15 @@ def Riccati_superconductor(
     epsilon: float,
     delta: float,
     phi_L: float,
-    phi_R: float
+    phi_R: float,
 ) -> npt.NDArray[np.complex128]:
     """Calculates Riccati boundary matrices for normal metal insterfaced with two superconductors
 
     Args:
         epsilon (float): Quasiparticle excitation energy
         delta (float): Imaginary energy shift
-        phi_L (np.float64, optional): Left superconducting phase. 
-        phi_R (np.float64, optional): Right superconducting phase. 
+        phi_L (float): Left superconducting phase. 
+        phi_R (float): Right superconducting phase. 
         
     Returns:
         npt.NDArray[np.complex128]: Array of matrices gamma_L, gamma_L_tilde, gamma_R, gamma_R_tilde respectively
@@ -88,11 +88,11 @@ def Riccati_superconductor(
     
     return np.array([gamma_L, gamma_L_tilde, gamma_R, gamma_R_tilde])
 
-def rho_3_fun(matrix_shape: tuple[int, ...] = (2, 2)) -> npt.NDArray[np.complex128]: #consider removing generalization
+def rho_3_fun(matrix_shape: tuple[int, ...] = (2, 2)) -> npt.NDArray[np.complex128]: 
     """Calculates the Pauli-z in nambu space
 
     Args:
-        matrix_shape (tuple[int, ...], optional): Shape of I matrix, should always be 2x2 for the pauli matrix. Defaults to (2, 2).
+        matrix_shape (tuple[int, ...], optional): shape of I matrix, should always be 2x2 for the pauli matrix. Defaults to (2, 2).
 
     Returns:
         npt.NDArray[np.complex128]: Pauli-z in nambu space
@@ -103,13 +103,13 @@ def rho_3_fun(matrix_shape: tuple[int, ...] = (2, 2)) -> npt.NDArray[np.complex1
 
 def green_fun(
     gamma: npt.NDArray[np.complex128],
-    gamma_tilde: npt.NDArray[np.complex128]
+    gamma_tilde: npt.NDArray[np.complex128],
 )->  npt.NDArray[np.complex128]:
     """Calculates Green function
 
     Args:
         gamma (npt.NDArray[np.complex128]): Riccati amplitude
-        gamma_tilde (npt.NDArray[np.complex128]): Conjugate Riccati amplitude
+        gamma_tilde (npt.NDArray[np.complex128]): conjugate Riccati amplitude
 
     Returns:
         npt.NDArray[np.complex128]: Green function
@@ -124,7 +124,7 @@ def green_fun_deriv(
     gamma: npt.NDArray[np.complex128],
     gamma_tilde: npt.NDArray[np.complex128],
     w: npt.NDArray[np.complex128],
-    w_tilde: npt.NDArray[np.complex128]
+    w_tilde: npt.NDArray[np.complex128],
 ) -> npt.NDArray[np.complex128]:
     """Calculates the derivative of the Green function
 

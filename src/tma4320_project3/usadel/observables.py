@@ -11,16 +11,16 @@ from .riccati import(
 
 def dos_fun(
     gamma: npt.NDArray[np.complex128],
-    gamma_tilde: npt.NDArray[np.complex128]
+    gamma_tilde: npt.NDArray[np.complex128],
 ) -> np.float64:
     """Calculates density of states for Riccati amplitudes
 
     Args:
         gamma (npt.NDArray[np.complex128]): Riccati amplitude
-        gamma_tilde (npt.NDArray[np.complex128]): Riccati amplitude conjugate
+        gamma_tilde (npt.NDArray[np.complex128]): conjugate Riccati amplitude
 
     Returns:
-        np.float64: Density of states
+        np.float64: density of states
     """
     rho_3 = rho_3_fun()
     greens = green_fun(gamma, gamma_tilde)
@@ -31,8 +31,8 @@ def current_integrand_fun(
     gamma: npt.NDArray[np.complex128],
     gamma_tilde: npt.NDArray[np.complex128],
     w: npt.NDArray[np.complex128],
-    w_tilde: npt.NDArray[np.complex128]
-) -> np.float64:
+    w_tilde: npt.NDArray[np.complex128],
+) -> float:
     """Calculates the current integrand
 
     Args:
@@ -42,7 +42,7 @@ def current_integrand_fun(
         w_tilde (npt.NDArray[np.complex128]): d_x gamma_tilde
 
     Returns:
-        np.float64: Current integrand
+        float: current integrand
     """
     
     rho_3 = rho_3_fun()

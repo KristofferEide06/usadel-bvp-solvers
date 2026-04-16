@@ -7,10 +7,10 @@ def complex_to_real(matrix: npt.NDArray[np.complex128]) -> npt.NDArray[np.float6
     """Transforms real matrix to flattened real vector
 
     Args:
-        matrix (npt.NDArray[np.complex128]): Complex matrix
+        matrix (npt.NDArray[np.complex128]): complex matrix
 
     Returns:
-        npt.NDArray[np.float64]: FLattened real vector of the form v = (real, imag)
+        npt.NDArray[np.float64]: flattened real vector of the form v = (real, imag)
     """
     real_arr = np.real(matrix).flatten()
     im_arr = np.imag(matrix).flatten()
@@ -19,7 +19,7 @@ def complex_to_real(matrix: npt.NDArray[np.complex128]) -> npt.NDArray[np.float6
 
 def real_to_complex(
     vec: npt.NDArray[np.float64], 
-    matrix_shape: tuple[int, ...] = (2, 2)
+    matrix_shape: tuple[int, ...] = (2, 2),
     ) -> npt.NDArray[np.complex128]:
     """Transforms real flattened vector into complex matrix
 
@@ -28,10 +28,10 @@ def real_to_complex(
         matrix_shape (tuple[int, ...], optional): Shape of matrix to be returned. Defaults to (2, 2).
 
     Raises:
-        ValueError: Vec must be of even size, to have as many complex parts as real
+        ValueError: vec must be of even size, to have as many complex parts as real
 
     Returns:
-        npt.NDArray[np.complex128]: Complex matrix
+        npt.NDArray[np.complex128]: complex matrix
     """
     
     if len(vec) % 2 != 0:
@@ -47,29 +47,29 @@ def expand_vec(vec_arr: npt.NDArray[np.float64]) -> npt.NDArray[np.float64]:
     """Expands array of real vectors (matrix) to one vector
 
     Args:
-        vec_tuple ([pt.NDArray[np.float64]: Array of vectors to expand
+        vec_arr (npt.NDArray[np.float64]): array of vectors to expand
 
     Returns:
-        npt.NDArray[np.float64]: Expanded vector
+        npt.NDArray[np.float64]: expanded vector
     """
     
     return np.concat(vec_arr, axis = 0, dtype = np.float64)
 
 def reshape_vec(
     vec: npt.NDArray[np.float64], 
-    vec_size: int = 8
+    vec_size: int = 8,
     ) -> npt.NDArray[np.float64]:
     """Creates component vectors from one vector
     
     Args:
-        vec (npt.NDArray[np.float64]): Vector to be reshaped.
-        vec_size (int, optional): Desired size of component vectors. Defaults to 8
+        vec (npt.NDArray[np.float64]): vector to be reshaped.
+        vec_size (int, optional): desired size of component vectors. Defaults to 8
 
     Raises:
         ValueError: Vector must be divisible by desired vector component length
 
     Returns:
-        npt.NDArray[np.float64]: Matrix where each row is component vector of original vector
+        npt.NDArray[np.float64]: matrix where each row is component vector of original vector
     """
     if len(vec) % vec_size != 0:
         raise ValueError("Vec must be divisible by vec_size")
@@ -80,7 +80,7 @@ def usadel_matrix_to_vec(
     gamma: npt.NDArray[np.complex128], 
     gamma_tilde: npt.NDArray[np.complex128],
     w: npt.NDArray[np.complex128],
-    w_tilde: npt.NDArray[np.complex128]
+    w_tilde: npt.NDArray[np.complex128],
     ) -> npt.NDArray[np.float64]:
     """Expands the four usadel matrices into one real vector
 
@@ -113,14 +113,14 @@ def vec_to_usadel_matrix(
     """Transform vector into the form usadel matrices, gamma, gamma_tilde, w, w_tilde
 
     Args:
-        vec (npt.NDArray[np.float64]): Vector to be transformed
-        matrix_shape (tuple[int, ...], optional): Shape of usadel matrices. Defaults to (2, 2).
+        vec (npt.NDArray[np.float64]): vector to be transformed
+        matrix_shape (tuple[int, ...], optional): shape of usadel matrices. Defaults to (2, 2)
 
     Raises:
         ValueError: Matrix_shape should be so that vec can be divided into equally shaped matrices
 
     Returns:
-        npt.NDArray[np.complex128]: Array of matrices, where the columns represent gamma, gamma_tilde, w, w_tilde respectively
+        npt.NDArray[np.complex128]: array of matrices, where the columns represent gamma, gamma_tilde, w, w_tilde respectively
     """
     component_size = np.prod(matrix_shape)
     if len(vec) % component_size != 0:

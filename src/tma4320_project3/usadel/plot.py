@@ -32,17 +32,17 @@ def plot_usadel_sol(
     phi_R: float,
     superconductor: bool,
     matrix_label: Literal['gamma', 'gamma_tilde', 'w', 'w_tilde'],
-    figsize: tuple[int, ...] = (8,4)
+    figsize: tuple[int, ...] = (8,4),
 ):
     """Plots components of riccati matrix solution
 
     Args:
         x (npt.NDArray[np.float64]): Array to find solution on
         y (npt.NDARray[np.float64]): Initial guess
-        epsilon float: Quasiparticle excitation energy
-        delta float: Imaginary energy shift
-        zeta float: Interface parameter
-        l float: Length of normal region
+        epsilon (float): Quasiparticle excitation energy
+        delta (float): Imaginary energy shift
+        zeta (float): Interface parameter
+        l (float): Length of normal region
         phi_L (float): Left superconducting phase.
         phi_R (float): Right superconducting phase.
         superconductor (bool): True if normal metal is interfaced with two superconductors
@@ -101,25 +101,25 @@ def plot_observable(
     phi_L: float | npt.NDArray[np.float64],
     phi_R: float | npt.NDArray[np.float64],
     superconductor: bool,
-    figsize: tuple[int, ...] = (8,4)
+    figsize: tuple[int, ...] = (8,4),
 ):
     """Plots observable as function of variable_plot
 
     Args:
-        observable (Literal[&#39;dos&#39;, &#39;current&#39;, &#39;current_integrand&#39;]): observable to plot
-        variable_plot (Literal[&#39;x&#39;, &#39;epsilon&#39;, &#39;delta&#39;, &#39;zeta&#39;, &#39;l&#39;, &#39;phi_L&#39;, &#39;phi_R&#39;]): value to plot observable over
-        x (npt.NDArray[np.float64]): Array to find solution
-        x_index (int): Index of which to evaluate observable if variable_Plot != 'x'
+        observable (Literal['dos', 'current', 'current_integrand']): observable to plot
+        variable_plot (Literal['x', 'epsilon', 'delta', 'zeta', 'l', 'phi_L', 'phi_R']): value to plot observable over
+        x (npt.NDArray[np.float64]): array to find solution
+        x_index (int): index of which to evaluate observable if variable_Plot != 'x'
         location of which to evaluate solution, can be any integer if variable_plot == 'x'
-        y (npt.NDARray[np.float64]): Initial guess
-        epsilon float: Quasiparticle excitation energy
-        delta float: Imaginary energy shift
-        zeta float: Interface parameter
-        l float: Length of normal region
-        phi_L (float): Left superconducting phase.
-        phi_R (float): Right superconducting phase.
+        y (npt.NDARray[np.float64]): initial guess guess
+        epsilon (float): quasiparticle excitation energy
+        delta (float:) imaginary energy shift
+        zeta (float): interface parameter
+        l (float): length of normal region
+        phi_L (float): left superconducting phase.
+        phi_R (float): right superconducting phase.
         superconductor (bool): True if normal metal is interfaced with two superconductors
-        matrix_label (str): Which matrix to plot, can be 'gamma', 'gamma_tilde', 'w', 'w_tilde'
+        matrix_label (str): which matrix to plot, can be 'gamma', 'gamma_tilde', 'w', 'w_tilde'
         figsize (tuple[int, ...], optional): desired figure size. Defaults to (8,4).
 
     Raises:
