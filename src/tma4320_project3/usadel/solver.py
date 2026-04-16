@@ -27,7 +27,7 @@ def vec_deriv(
     epsilon: float,
     delta: float
     ) -> npt.NDArray[np.float64]:
-    """Calcualtes derivative of flattened vector
+    """Calculates derivative of flattened vector
 
     Args:
         vec (npt.NDArray[np.float64]): Flattened vector

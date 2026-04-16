@@ -137,6 +137,8 @@ def plot_observable(
     
   
     variables = {
+        'x': x,
+        'y': y,
         'epsilon': epsilon,
         'delta': delta,
         'zeta': zeta,
@@ -150,7 +152,7 @@ def plot_observable(
     fixed_vars = {k: v for k, v in variables.items() if k!= variable_plot}
 
     if variable_plot == 'x':
-        gamma, gamma_tilde, w, w_tilde, _ = usadel_solver(x, y, **variables)
+        gamma, gamma_tilde, w, w_tilde, _ = usadel_solver(**variables)
 
         y_vals = np.zeros(len(x), dtype=np.float64)
         
@@ -170,14 +172,14 @@ def plot_observable(
             current_vars = fixed_vars | {variable_plot: value}
 
             if observable == 'dos':
-                gamma, gamma_tilde, w, w_tilde, _ = usadel_solver(x, y, **current_vars)
+                gamma, gamma_tilde, w, w_tilde, _ = usadel_solver(**current_vars)
                 y_vals[i] = dos_fun(
                     gamma[x_index],
                     gamma_tilde[x_index],
                 )
                 
             elif observable == 'current_integrand':
-                gamma, gamma_tilde, w, w_tilde, _ = usadel_solver(x, y, **current_vars)
+                gamma, gamma_tilde, w, w_tilde, _ = usadel_solver(**current_vars)
                 y_vals[i] = current_integrand_fun(
                     gamma[x_index],
                     gamma_tilde[x_index],
@@ -191,7 +193,8 @@ def plot_observable(
                 
                 for j, epsilon_val in enumerate(epsilon_vals):
                     epsilon_vars = current_vars | {'epsilon': epsilon_val}
-                    gamma, gamma_tilde, w, w_tilde, sol = usadel_solver(x, y_current, **epsilon_vars)
+                    
+                    gamma, gamma_tilde, w, w_tilde, sol = usadel_solver(**epsilon_vars)
 
                     y_current = sol
                     
@@ -201,6 +204,8 @@ def plot_observable(
                         w[x_index],
                         w_tilde[x_index]
                     )
+
+                    epsilon_vars['y'] = y_current
                     
                 y_vals[i] = -simpson(np.flip(integrand_vals), x = np.flip(epsilon_vals))
                     

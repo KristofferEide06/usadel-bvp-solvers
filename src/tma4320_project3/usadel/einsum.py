@@ -6,7 +6,7 @@ def bmm(
     A: npt.NDArray[np.complex128], 
     B: npt.NDArray[np.complex128]
 ) -> npt.NDArray[np.complex128]:
-    """Matrix multiplication preformed in batches using np.einsum
+    """Matrix multiplication performed in batches using np.einsum
 
     Args:
         A (npt.NDArray[np.complex128]): Matrix 1, either (2, 2) or (2, 2, N_x)
@@ -27,14 +27,14 @@ def bmm(
 
 def tr(
     A: npt.NDArray[np.complex128]
-) -> np.complex128:
+) -> np.complex128 | npt.NDArray[np.complex128]:
     """Computes the trace of a matrix with np.einsum
 
     Args:
         A (npt.NDArray[np.complex128]): Matrix to be traced
 
     Returns:
-        np.complex128: Trace of matrix A
+        np.complex128 | npt.NDArray[np.complex128]: Trace of matrix A
     """
 
     return np.einsum('...ii', A, optimize=True)
