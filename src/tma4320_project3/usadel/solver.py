@@ -1,21 +1,16 @@
 import numpy as np
 import numpy.typing as npt
-from typing import cast
 from collections.abc import Callable
 from scipy.integrate import solve_bvp
 
 from .transform import (
-    complex_to_real,
-    real_to_complex,
-    reshape_vec,
-    expand_vec,
     usadel_matrix_to_vec,
     vec_to_usadel_matrix,
 )
 
 from .riccati import (
   N_fun,
-  Riccati_superconductor  
+  Riccati_superconductor,
 )
 
 def vec_deriv(
@@ -46,7 +41,7 @@ def vec_deriv(
         d_gamma,
         d_gamma_tilde,
         d_w,
-        d_w_tilde
+        d_w_tilde,
     )
 
 def make_diff_system(
@@ -184,7 +179,6 @@ def usadel_solver(
     for j in range(m):
         gamma_arr[j], gamma_tilde_arr[j], w_arr[j], w_tilde_arr[j] = vec_to_usadel_matrix(sol[:, j])
 
-    
     return gamma_arr, gamma_tilde_arr, w_arr, w_tilde_arr
   
   

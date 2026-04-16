@@ -1,7 +1,6 @@
 import numpy as np
 import numpy.typing as npt
-from typing import cast, Literal
-from collections.abc import Callable
+from typing import Literal
 from scipy.integrate import simpson
 import matplotlib.pyplot as plt
 
@@ -14,13 +13,6 @@ from .observables import(
     current_integrand_fun
 )
 
-#Plot 
-#real and im parts of sol for gamma for different epsilon
-#density of states as function of kposition for different states
-#density of states as function of length
-#current integral in the middle of metal as function of energy
-#current as function of phase difference
-
 def plot_usadel_sol(
     x: npt.NDArray[np.float64],
     y: npt.NDArray[np.float64],
@@ -32,17 +24,17 @@ def plot_usadel_sol(
     phi_R: float,
     superconductor: bool,
     matrix_label: Literal['gamma', 'gamma_tilde', 'w', 'w_tilde'],
-    figsize: tuple[int, ...] = (8,4)
+    figsize: tuple[int, ...] = (8,4),
 ):
     """Plots components of riccati matrix solution
 
     Args:
         x (npt.NDArray[np.float64]): Array to find solution on
         y (npt.NDARray[np.float64]): Initial guess
-        epsilon float: Quasiparticle excitation energy
-        delta float: Imaginary energy shift
-        zeta float: Interface parameter
-        l float: Length of normal region
+        epsilon (float): Quasiparticle excitation energy
+        delta (float): Imaginary energy shift
+        zeta (float): Interface parameter
+        l (float): Length of normal region
         phi_L (float): Left superconducting phase.
         phi_R (float): Right superconducting phase.
         superconductor (bool): True if normal metal is interfaced with two superconductors
@@ -101,25 +93,25 @@ def plot_observable(
     phi_L: float | npt.NDArray[np.float64],
     phi_R: float | npt.NDArray[np.float64],
     superconductor: bool,
-    figsize: tuple[int, ...] = (8,4)
+    figsize: tuple[int, ...] = (8,4),
 ):
     """Plots observable as function of variable_plot
 
     Args:
-        observable (Literal[&#39;dos&#39;, &#39;current&#39;, &#39;current_integrand&#39;]): observable to plot
-        variable_plot (Literal[&#39;x&#39;, &#39;epsilon&#39;, &#39;delta&#39;, &#39;zeta&#39;, &#39;l&#39;, &#39;phi_L&#39;, &#39;phi_R&#39;]): value to plot observable over
-        x (npt.NDArray[np.float64]): Array to find solution
-        x_index (int): Index of which to evaluate observable if variable_Plot != 'x'
+        observable (Literal['dos', 'current', 'current_integrand']): observable to plot
+        variable_plot (Literal['x', 'epsilon', 'delta', 'zeta', 'l', 'phi_L', 'phi_R']): value to plot observable over
+        x (npt.NDArray[np.float64]): array to find solution
+        x_index (int): index of which to evaluate observable if variable_Plot != 'x'
         location of which to evaluate solution, can be any integer if variable_plot == 'x'
-        y (npt.NDARray[np.float64]): Initial guess
-        epsilon float: Quasiparticle excitation energy
-        delta float: Imaginary energy shift
-        zeta float: Interface parameter
-        l float: Length of normal region
-        phi_L (float): Left superconducting phase.
-        phi_R (float): Right superconducting phase.
+        y (npt.NDARray[np.float64]): initial guess guess
+        epsilon (float): quasiparticle excitation energy
+        delta (float:) imaginary energy shift
+        zeta (float): interface parameter
+        l (float): length of normal region
+        phi_L (float): left superconducting phase.
+        phi_R (float): right superconducting phase.
         superconductor (bool): True if normal metal is interfaced with two superconductors
-        matrix_label (str): Which matrix to plot, can be 'gamma', 'gamma_tilde', 'w', 'w_tilde'
+        matrix_label (str): which matrix to plot, can be 'gamma', 'gamma_tilde', 'w', 'w_tilde'
         figsize (tuple[int, ...], optional): desired figure size. Defaults to (8,4).
 
     Raises:
@@ -132,10 +124,10 @@ def plot_observable(
     
     if variable_plot not in ['x', 'epsilon', 'delta', 'zeta', 'l', 'phi_L', 'phi_R']:
         raise ValueError("variable_plot must be 'x', 'epsilon', 'delta', 'zeta', 'l', 'phi_L' or 'phi_R'")
+    
     if (variable_plot == 'x' or variable_plot == 'epsilon') and observable == 'current':
         raise ValueError("variable_plot == 'x' or 'epsilon' and observable == 'current' is meaningless combination")
     
-  
     variables = {
         'x': x,
         'y': y,
@@ -151,8 +143,6 @@ def plot_observable(
     dynamic_var = variables[variable_plot]
     fixed_vars = {k: v for k, v in variables.items() if k!= variable_plot}
     
-    
-
     if variable_plot == 'x':
         gamma, gamma_tilde, w, w_tilde = usadel_solver(**variables)
         
@@ -164,6 +154,7 @@ def plot_observable(
                 y_vals[i] = dos_fun(gamma[i], gamma_tilde[i])
             elif observable == 'current_integrand':
                 y_vals[i] = current_integrand_fun(gamma[i], gamma_tilde[i], w[i], w_tilde[i])
+                
     else:
         dynamic_vals = np.asarray(dynamic_var, dtype = np.float64)
             
@@ -207,10 +198,12 @@ def plot_observable(
                     
     fig, ax = plt.subplots(figsize = figsize)
     ax.plot(x_vals, y_vals)
+    
     if variable_plot == 'x':
         ax.set_title(f"{observable} given {variable_plot}")
     else:
         ax.set_title(f"{observable} given {variable_plot} at x_index = {x_index}")
+        
     ax.set_xlabel(variable_plot)
     ax.set_ylabel(observable)
     ax.grid()

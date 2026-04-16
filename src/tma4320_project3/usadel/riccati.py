@@ -1,14 +1,13 @@
 import numpy as np
 import numpy.typing as npt
 from typing import cast
-from collections.abc import Callable
     
 def N_fun(
     gamma: npt.NDArray[np.complex128], 
-    gamma_tilde: npt.NDArray[np.complex128]
+    gamma_tilde: npt.NDArray[np.complex128],
     ) -> tuple[
         npt.NDArray[np.complex128],
-        npt.NDArray[np.complex128]
+        npt.NDArray[np.complex128],
 ]:
     """Calculates the Riccati normalization matrices
 
@@ -20,7 +19,7 @@ def N_fun(
         ValueError: gamma and gamma_tilde should be of size (2,2)
 
     Returns:
-        tuple[ npt.NDArray[np.complex128], npt.NDArray[np.complex128] ]: normalization matrix), conjugate normalization matrix
+        tuple[ npt.NDArray[np.complex128], npt.NDArray[np.complex128] ]: normalization matrix, conjugate normalization matrix
     """
     if not (gamma.shape == gamma_tilde.shape == (2, 2)):
         raise ValueError("gamma and gamma_tilde should be of size (2,2)")
@@ -36,16 +35,16 @@ def N_deriv_fun(
     gamma: npt.NDArray[np.complex128],
     gamma_tilde: npt.NDArray[np.complex128],
     w: npt.NDArray[np.complex128],
-    w_tilde: npt.NDArray[np.complex128]
+    w_tilde: npt.NDArray[np.complex128],
     ) -> tuple[
     npt.NDArray[np.complex128],
-    npt.NDArray[np.complex128]
+    npt.NDArray[np.complex128],
 ]:
     """Calculates the derivative of the normalization matrix
 
     Args:
         gamma (npt.NDArray[np.complex128]): Riccati amplitude
-        gamma_tilde (npt.NDArray[np.complex128]): Conjugate Riccati amplitude
+        gamma_tilde (npt.NDArray[np.complex128]): conjugate Riccati amplitude
         w (npt.NDArray[np.complex128]): d_x gamma
         w_tilde (npt.NDArray[np.complex128]): d_x gamma_tilde
 
@@ -63,15 +62,15 @@ def Riccati_superconductor(
     epsilon: float,
     delta: float,
     phi_L: float,
-    phi_R: float
+    phi_R: float,
 ) -> npt.NDArray[np.complex128]:
     """Calculates Riccati boundary matrices for normal metal insterfaced with two superconductors
 
     Args:
         epsilon (float): Quasiparticle excitation energy
         delta (float): Imaginary energy shift
-        phi_L (np.float64, optional): Left superconducting phase. 
-        phi_R (np.float64, optional): Right superconducting phase. 
+        phi_L (float): Left superconducting phase. 
+        phi_R (float): Right superconducting phase. 
         
     Returns:
         npt.NDArray[np.complex128]: Array of matrices gamma_L, gamma_L_tilde, gamma_R, gamma_R_tilde respectively
@@ -81,6 +80,7 @@ def Riccati_superconductor(
     s = lambda sigma, epsilon = epsilon, delta = delta: np.sinh(vartheta(epsilon, delta, sigma))
     c = lambda sigma, epsilon = epsilon, delta = delta: np.cosh(vartheta(epsilon, delta, sigma))
 
+    #1 for positive (e.g. s_+), -1 for negative (e.g. s_-)
     gamma_L = np.block([[0, s(1) / (1 + c(1))], [s(-1)/(1 + c(-1)), 0]])* np.exp(-1j * phi_L)
     gamma_L_tilde = np.block([[0, s(1) / (1 + c(-1))], [s(1) / (1 + c(1)), 0]]) * np.exp(-1j * phi_L)
     gamma_R = np.block([[0, s(1) / (1 + c(1))], [s(-1)/(1 + c(-1)), 0]])* np.exp(-1j * phi_R)
@@ -88,11 +88,11 @@ def Riccati_superconductor(
     
     return np.array([gamma_L, gamma_L_tilde, gamma_R, gamma_R_tilde])
 
-def rho_3_fun(matrix_shape: tuple[int, ...] = (2, 2)) -> npt.NDArray[np.complex128]: #consider removing generalization
+def rho_3_fun(matrix_shape: tuple[int, ...] = (2, 2)) -> npt.NDArray[np.complex128]: 
     """Calculates the Pauli-z in nambu space
 
     Args:
-        matrix_shape (tuple[int, ...], optional): Shape of I matrix, should always be 2x2 for the pauli matrix. Defaults to (2, 2).
+        matrix_shape (tuple[int, ...], optional): shape of I matrix, should always be 2x2 for the pauli matrix. Defaults to (2, 2).
 
     Returns:
         npt.NDArray[np.complex128]: Pauli-z in nambu space
@@ -103,13 +103,13 @@ def rho_3_fun(matrix_shape: tuple[int, ...] = (2, 2)) -> npt.NDArray[np.complex1
 
 def green_fun(
     gamma: npt.NDArray[np.complex128],
-    gamma_tilde: npt.NDArray[np.complex128]
+    gamma_tilde: npt.NDArray[np.complex128],
 )->  npt.NDArray[np.complex128]:
     """Calculates Green function
 
     Args:
         gamma (npt.NDArray[np.complex128]): Riccati amplitude
-        gamma_tilde (npt.NDArray[np.complex128]): Conjugate Riccati amplitude
+        gamma_tilde (npt.NDArray[np.complex128]): conjugate Riccati amplitude
 
     Returns:
         npt.NDArray[np.complex128]: Green function
@@ -124,7 +124,7 @@ def green_fun_deriv(
     gamma: npt.NDArray[np.complex128],
     gamma_tilde: npt.NDArray[np.complex128],
     w: npt.NDArray[np.complex128],
-    w_tilde: npt.NDArray[np.complex128]
+    w_tilde: npt.NDArray[np.complex128],
 ) -> npt.NDArray[np.complex128]:
     """Calculates the derivative of the Green function
 
@@ -138,10 +138,9 @@ def green_fun_deriv(
         npt.NDArray[np.complex128]: d_x g
     """
     N, N_tilde = N_fun(gamma, gamma_tilde)
-    d_N, d_N_tilde = N_deriv_fun(gamma, w, w_tilde, gamma_tilde)
+    d_N, d_N_tilde = N_deriv_fun(gamma, gamma_tilde, w, w_tilde)
     
-    return 2 * np.matrix(
-        [d_N, N @ w + d_N @ gamma], 
-        [-N_tilde @ w_tilde - d_N_tilde @ gamma_tilde, -d_N_tilde]
+    return 2 * np.block(
+        [[d_N, N @ w + d_N @ gamma], 
+        [-N_tilde @ w_tilde - d_N_tilde @ gamma_tilde, -d_N_tilde]]
         )
-
