@@ -122,7 +122,7 @@ def make_bc(
         l_w_boundary = l_w + 1/(zeta * l) * (I - l_gamma @ gamma_tilde_L) @ N_L @ (gamma_L - l_gamma)
         l_w_tilde_boundary = l_w_tilde + 1/(zeta * l) * (I - l_gamma_tilde @ gamma_L) @ N_tilde_L @ (gamma_tilde_L - l_gamma_tilde)
         r_w_boundary = r_w - 1/(zeta * l) * (I - r_gamma @ gamma_tilde_R) @ N_R @ (gamma_R - r_gamma)
-        r_w_tilde_boundary = r_w_tilde - 1/(zeta * l) * (I - l_gamma_tilde @ gamma_R) @ N_tilde_R @ (gamma_tilde_R - l_gamma_tilde)
+        r_w_tilde_boundary = r_w_tilde - 1/(zeta * l) * (I - r_gamma_tilde @ gamma_R) @ N_tilde_R @ (gamma_tilde_R - r_gamma_tilde)
         
         return usadel_matrix_to_vec(l_w_boundary, l_w_tilde_boundary, r_w_boundary, r_w_tilde_boundary)
     
@@ -142,7 +142,8 @@ def usadel_solver(
         npt.NDArray[np.complex128],
         npt.NDArray[np.complex128],
         npt.NDArray[np.complex128],
-        npt.NDArray[np.complex128]
+        npt.NDArray[np.complex128],
+        npt.NDArray[np.complex128],
     ]:
     """Calcualtes the Riccati parameters for given x and y
 
@@ -162,8 +163,9 @@ def usadel_solver(
             np.complex128],
             npt.NDArray[np.complex128],
             npt.NDArray[np.complex128],
-            npt.NDArray[np.complex128]
-            ]: Arrays of values for gamma, gamma_tilde, w, w_tilde arrays at all x positions
+            npt.NDArray[np.complex128],
+            npt.NDArray[np.complex128],
+            ]: Arrays of values for gamma, gamma_tilde, w, w_tilde arrays at all x positions, sol
     """
     solution = solve_bvp(
         make_diff_system(epsilon, delta),
@@ -179,6 +181,6 @@ def usadel_solver(
     for j in range(m):
         gamma_arr[j], gamma_tilde_arr[j], w_arr[j], w_tilde_arr[j] = vec_to_usadel_matrix(sol[:, j])
 
-    return gamma_arr, gamma_tilde_arr, w_arr, w_tilde_arr
+    return gamma_arr, gamma_tilde_arr, w_arr, w_tilde_arr, sol
   
   
