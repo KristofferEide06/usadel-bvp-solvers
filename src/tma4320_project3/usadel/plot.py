@@ -3,6 +3,7 @@ import numpy.typing as npt
 from typing import Literal
 from scipy.integrate import simpson
 import matplotlib.pyplot as plt
+from pathlib import Path
 
 from .solver import(
     usadel_solver
@@ -24,6 +25,7 @@ def plot_usadel_sol(
     phi_R: float,
     superconductor: bool,
     matrix_label: Literal['gamma', 'gamma_tilde', 'w', 'w_tilde'],
+    filename: str,
     figsize: tuple[int, ...] = (8,4),
 ):
     """Plots components of riccati matrix solution
@@ -39,6 +41,7 @@ def plot_usadel_sol(
         phi_R (float): Right superconducting phase.
         superconductor (bool): True if normal metal is interfaced with two superconductors
         matrix_label (str): Which matrix to plot, can be 'gamma', 'gamma_tilde', 'w', 'w_tilde'
+        filename (str): name of file for plot to be saved to, will automatically be put in folder plots/usadel_sol/
         figsize (tuple[int, ...], optional): desired figure size. Defaults to (8,4).
 
     Raises:
@@ -78,6 +81,16 @@ def plot_usadel_sol(
             ax[row][col].legend()
         
     plt.tight_layout()
+    
+    #codex
+    base_dir = Path(__file__).resolve().parents[3]
+    save_path = base_dir / "plots" / "usadel" / "usadel_sol" / filename
+    save_path.parent.mkdir(parents=True, exist_ok=True)
+    #codex
+
+    fig.savefig(save_path, dpi=300, bbox_inches="tight")
+    
+
     plt.show()
     
 def plot_observable(
@@ -93,6 +106,7 @@ def plot_observable(
     phi_L: float | npt.NDArray[np.float64],
     phi_R: float | npt.NDArray[np.float64],
     superconductor: bool,
+    filename : str,
     figsize: tuple[int, ...] = (8,4),
 ):
     """Plots observable as function of variable_plot
@@ -112,6 +126,7 @@ def plot_observable(
         phi_R (float): right superconducting phase.
         superconductor (bool): True if normal metal is interfaced with two superconductors
         matrix_label (str): which matrix to plot, can be 'gamma', 'gamma_tilde', 'w', 'w_tilde'
+        filename (str): name of file for plot to be saved to, will automatically be put in folder plots/usadel/observables/
         figsize (tuple[int, ...], optional): desired figure size. Defaults to (8,4).
 
     Raises:
@@ -207,4 +222,12 @@ def plot_observable(
     ax.set_xlabel(variable_plot)
     ax.set_ylabel(observable)
     ax.grid()
+    
+     #codex
+    base_dir = Path(__file__).resolve().parents[3]
+    save_path = base_dir / "plots" / "usadel" / "observables" / filename
+    save_path.parent.mkdir(parents=True, exist_ok=True)
+    #codex
+    
+    fig.savefig(save_path, dpi=300, bbox_inches="tight")
     plt.show()
