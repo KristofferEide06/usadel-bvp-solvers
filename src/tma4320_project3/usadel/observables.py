@@ -7,10 +7,14 @@ from .riccati import(
     green_fun_deriv
 )
 
+from .einsum import(
+    tr
+)
+
 def dos_fun(
     gamma: npt.NDArray[np.complex128],
     gamma_tilde: npt.NDArray[np.complex128],
-) -> np.float64:
+) -> np.float64 | npt.NDArray[np.float64]:
     """Calculates density of states for Riccati amplitudes
 
     Args:
@@ -23,14 +27,14 @@ def dos_fun(
     rho_3 = rho_3_fun()
     greens = green_fun(gamma, gamma_tilde)
     
-    return np.real(np.trace(rho_3 @ greens)) / 4
+    return np.real(tr(rho_3 @ greens)) / 4
 
 def current_integrand_fun(
     gamma: npt.NDArray[np.complex128],
     gamma_tilde: npt.NDArray[np.complex128],
     w: npt.NDArray[np.complex128],
     w_tilde: npt.NDArray[np.complex128],
-) -> float:
+) -> np.float64 | npt.NDArray[np.float64]:
     """Calculates the current integrand
 
     Args:
@@ -40,11 +44,11 @@ def current_integrand_fun(
         w_tilde (npt.NDArray[np.complex128]): d_x gamma_tilde
 
     Returns:
-        float: current integrand
+        np.float64: current integrand
     """
     
     rho_3 = rho_3_fun()
     g = green_fun(gamma, gamma_tilde)
     d_g = green_fun_deriv(gamma, gamma_tilde, w, w_tilde)
     
-    return np.real(np.trace(rho_3 @ (g @ d_g - d_g @ g)))
+    return np.real(tr(rho_3 @ (g @ d_g - d_g @ g)))
