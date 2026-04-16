@@ -26,7 +26,7 @@ def plot_usadel_sol(
     superconductor: bool,
     matrix_label: Literal['gamma', 'gamma_tilde', 'w', 'w_tilde'],
     filename: str,
-    figsize: tuple[int, ...] = (8,4),
+    figsize: tuple[int, ...] = (8,4)
 ):
     """Plots components of riccati matrix solution
 
@@ -185,11 +185,10 @@ def plot_observable(
         x_vals = x
         y_vals = np.zeros(len(x), dtype = np.float64)
         
-        for i in range(len(x)):
-            if observable == 'dos':
-                y_vals[i] = dos_fun(gamma[i], gamma_tilde[i])
-            elif observable == 'current_integrand':
-                y_vals[i] = current_integrand_fun(gamma[i], gamma_tilde[i], w[i], w_tilde[i])
+        if observable == 'dos':
+            y_vals = dos_fun(gamma, gamma_tilde)
+        elif observable == 'current_integrand':
+            y_vals = current_integrand_fun(gamma, gamma_tilde, w, w_tilde)
                 
     else:
         dynamic_vals = np.asarray(dynamic_var, dtype = np.float64)
@@ -250,7 +249,7 @@ def plot_observable(
                         w_tilde[x_index]
                     )
                     
-                y_vals[i] = simpson(integrand_vals, x = epsilon_vals)
+                y_vals[i] = simpson(np.flip(integrand_vals), x = np.flip(epsilon_vals))
                     
     fig, ax = plt.subplots(figsize = figsize)
     ax.plot(x_vals, y_vals)
