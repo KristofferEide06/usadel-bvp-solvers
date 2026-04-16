@@ -1,7 +1,6 @@
 import numpy as np
 import numpy.typing as npt
 from typing import cast
-from collections.abc import Callable
     
 def N_fun(
     gamma: npt.NDArray[np.complex128], 

@@ -1,7 +1,5 @@
 import numpy as np
 import numpy.typing as npt
-from typing import cast
-from collections.abc import Callable
 
 def complex_to_real(matrix: npt.NDArray[np.complex128]) -> npt.NDArray[np.float64]:
     """Transforms real matrix to flattened real vector

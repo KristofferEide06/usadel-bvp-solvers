@@ -1,7 +1,5 @@
 import numpy as np
 import numpy.typing as npt
-from typing import cast
-from collections.abc import Callable
 
 from .riccati import(
     rho_3_fun,

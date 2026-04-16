@@ -1,7 +1,6 @@
 import numpy as np
 import numpy.typing as npt
-from typing import cast, Literal
-from collections.abc import Callable
+from typing import Literal
 from scipy.integrate import simpson
 import matplotlib.pyplot as plt
 
@@ -13,13 +12,6 @@ from .observables import(
     dos_fun,
     current_integrand_fun
 )
-
-#Plot 
-#real and im parts of sol for gamma for different epsilon
-#density of states as function of kposition for different states
-#density of states as function of length
-#current integral in the middle of metal as function of energy
-#current as function of phase difference
 
 def plot_usadel_sol(
     x: npt.NDArray[np.float64],
