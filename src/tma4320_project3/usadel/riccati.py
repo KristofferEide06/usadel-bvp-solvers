@@ -98,10 +98,10 @@ def Riccati_superconductor(
     s = lambda sigma: np.sinh(vartheta(sigma))
     c = lambda sigma: np.cosh(vartheta(sigma))
 
-    gamma_L = np.block([[0, s(1) / (1 + c(1))], [s(-1)/(1 + c(-1)), 0]])* np.exp(-1j * phi_L)
-    gamma_L_tilde = np.block([[0, s(1) / (1 + c(-1))], [s(1) / (1 + c(1)), 0]]) * np.exp(-1j * phi_L)
-    gamma_R = np.block([[0, s(1) / (1 + c(1))], [s(-1)/(1 + c(-1)), 0]])* np.exp(-1j * phi_R)
-    gamma_R_tilde = np.block([[0, s(1) / (1 + c(-1))], [s(1) / (1 + c(1)), 0]]) * np.exp(-1j * phi_R)
+    gamma_L = np.array([[0, s(1) / (1 + c(1))], [s(-1)/(1 + c(-1)), 0]])* np.exp(1j * phi_L)
+    gamma_L_tilde = np.array([[0, s(1) / (1 + c(-1))], [s(1) / (1 + c(1)), 0]]) * np.exp(-1j * phi_L)
+    gamma_R = np.array([[0, s(1) / (1 + c(1))], [s(-1)/(1 + c(-1)), 0]])* np.exp(1j * phi_R)
+    gamma_R_tilde = np.array([[0, s(1) / (1 + c(-1))], [s(1) / (1 + c(1)), 0]]) * np.exp(-1j * phi_R)
     
     return np.array([gamma_L, gamma_L_tilde, gamma_R, gamma_R_tilde])
 
