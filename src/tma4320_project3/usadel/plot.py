@@ -72,7 +72,7 @@ def plot_usadel_sol(
     
     matrix = matrices[matrix_label]
     matrix_shape = matrix[0].shape
-    fig, ax = plt.subplots(*matrix_shape, figsize = figsize, squeeze = False)
+    fig, ax = plt.subplots(*matrix.shape[1:], figsize=figsize, squeeze=False)
     
     for row in range(matrix.shape[1]):
         for col in range(matrix.shape[2]):
@@ -137,8 +137,6 @@ def plot_observable(
     
   
     variables = {
-        'x': x,
-        'y': y,
         'epsilon': epsilon,
         'delta': delta,
         'zeta': zeta,
@@ -150,38 +148,36 @@ def plot_observable(
     
     dynamic_var = variables[variable_plot]
     fixed_vars = {k: v for k, v in variables.items() if k!= variable_plot}
-    
-    
 
     if variable_plot == 'x':
-        gamma, gamma_tilde, w, w_tilde = usadel_solver(**variables)
+        gamma, gamma_tilde, w, w_tilde = usadel_solver(x, y, **variables)
+
+        y_vals = np.zeros(len(x), dtype=np.float64)
         
+        if observable == 'dos':
+            y_vals = dos_fun(gamma, gamma_tilde)
+        elif observable == 'current_integrand':
+            y_vals = current_integrand_fun(gamma, gamma_tilde, w, w_tilde)
+
         x_vals = x
-        y_vals = np.zeros(len(x), dtype = np.float64)
-        
-        for i in range(len(x)):
-            if observable == 'dos':
-                y_vals[i] = dos_fun(gamma[i], gamma_tilde[i])
-            elif observable == 'current_integrand':
-                y_vals[i] = current_integrand_fun(gamma[i], gamma_tilde[i], w[i], w_tilde[i])
     else:
         dynamic_vals = np.asarray(dynamic_var, dtype = np.float64)
             
-        x_vals = dynamic_var
-        y_vals = np.zeros(len(x_vals), dtype = np.float64)
+        x_vals = dynamic_vals
+        y_vals = np.zeros(len(dynamic_vals), dtype=np.float64)
         
         for i, value in enumerate(dynamic_vals):
             current_vars = fixed_vars | {variable_plot: value}
 
             if observable == 'dos':
-                gamma, gamma_tilde, w, w_tilde = usadel_solver(**current_vars)
+                gamma, gamma_tilde, w, w_tilde = usadel_solver(x, y, **current_vars)
                 y_vals[i] = dos_fun(
                     gamma[x_index],
                     gamma_tilde[x_index],
                 )
                 
             elif observable == 'current_integrand':
-                gamma, gamma_tilde, w, w_tilde = usadel_solver(**current_vars)
+                gamma, gamma_tilde, w, w_tilde = usadel_solver(x, y, **current_vars)
                 y_vals[i] = current_integrand_fun(
                     gamma[x_index],
                     gamma_tilde[x_index],
@@ -189,12 +185,12 @@ def plot_observable(
                     w_tilde[x_index]
                 )    
             elif observable == 'current':
-                epsilon_vals = np.linspace(0, 2,  100)
+                epsilon_vals = np.linspace(0, 2, 101)
                 integrand_vals = np.zeros_like(epsilon_vals)
                 
                 for j, epsilon_val in enumerate(epsilon_vals):
                     epsilon_vars = current_vars | {'epsilon': epsilon_val}
-                    gamma, gamma_tilde, w, w_tilde = usadel_solver(**epsilon_vars)
+                    gamma, gamma_tilde, w, w_tilde = usadel_solver(x, y, **epsilon_vars)
                     
                     integrand_vals[j] = current_integrand_fun(
                         gamma[x_index],
@@ -205,12 +201,12 @@ def plot_observable(
                     
                 y_vals[i] = -simpson(integrand_vals, x = epsilon_vals)
                     
-    fig, ax = plt.subplots(figsize = figsize)
+    fig, ax = plt.subplots(figsize=figsize)
     ax.plot(x_vals, y_vals)
     if variable_plot == 'x':
-        ax.set_title(f"{observable} given {variable_plot}")
+        ax.set_title(f"{observable} over {variable_plot}")
     else:
-        ax.set_title(f"{observable} given {variable_plot} at x_index = {x_index}")
+        ax.set_title(f"{observable} over {variable_plot} at x_index = {x_index}")
     ax.set_xlabel(variable_plot)
     ax.set_ylabel(observable)
     ax.grid()
