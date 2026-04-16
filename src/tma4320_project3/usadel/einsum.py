@@ -9,16 +9,19 @@ def bmm(
     """Matrix multiplication preformed in batches using np.einsum
 
     Args:
-        A (npt.NDArray[np.complex128]): Matrix 1 (2, 2, N_x)
-        B (npt.NDArray[np.complex128]): Matrix 2 (2, 2, N_x)
+        A (npt.NDArray[np.complex128]): Matrix 1, either (2, 2) or (2, 2, N_x)
+        B (npt.NDArray[np.complex128]): Matrix 2, either (2, 2) or (2, 2, N_x)
 
     Returns:
         npt.NDArray[np.complex128]: Product of the matrices
     """
 
     assert A.shape == B.shape, f"A og B må ha samme form, fikk {A.shape} og {B.shape}"
-    assert A.shape[0] == A.shape[1] == 2, f"Forventet (2, 2, N_x), fikk {A.shape}"
-    
+    assert A.shape[0] == A.shape[1] == 2, f"Forventet (2, 2) eller (2, 2, N_x), fikk {A.shape}"
+
+    if A.ndim == 2:
+        return A @ B
+
     return np.einsum('ijk,jlk->ilk', A, B, optimize=True)
 
 
