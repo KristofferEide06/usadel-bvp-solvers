@@ -26,7 +26,7 @@ def plot_usadel_sol(
     superconductor: bool,
     matrix_label: Literal['gamma', 'gamma_tilde', 'w', 'w_tilde'],
     filename: str,
-    figsize: tuple[int, ...] = (8,4)
+    figsize: tuple[int, ...] = (8,4),
 ):
     """Plots components of riccati matrix solution
 

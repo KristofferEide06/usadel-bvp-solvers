@@ -4,7 +4,7 @@ import numpy.typing as npt
 from .riccati import(
     rho_3_fun,
     green_fun,
-    green_fun_deriv
+    green_fun_deriv,
 )
 
 from .einsum import(

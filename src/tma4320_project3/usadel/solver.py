@@ -20,7 +20,7 @@ from .einsum import (
 def vec_deriv_vectorized(
     vec: npt.NDArray[np.float64],
     epsilon: float,
-    delta: float
+    delta: float,
 ) -> npt.NDArray[np.float64]:
     """Calculates derivative of a batch of flattened vectors
     Args:
@@ -73,7 +73,7 @@ def make_bc(
     l: float,
     phi_L: float,
     phi_R: float,
-    superconductor: bool
+    superconductor: bool,
     ) -> Callable[
     [npt.NDArray[np.float64], npt.NDArray[np.float64]],
     npt.NDArray[np.float64]
@@ -131,7 +131,7 @@ def usadel_solver(
     l: float,
     phi_L: float,
     phi_R: float,
-    superconductor: bool
+    superconductor: bool,
     ) -> tuple[
         npt.NDArray[np.complex128],
         npt.NDArray[np.complex128],

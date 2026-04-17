@@ -4,7 +4,7 @@ import numpy.typing as npt
 
 def bmm(
     A: npt.NDArray[np.complex128], 
-    B: npt.NDArray[np.complex128]
+    B: npt.NDArray[np.complex128],
 ) -> npt.NDArray[np.complex128]:
     """Matrix multiplication performed in batches using np.einsum
     Args:
