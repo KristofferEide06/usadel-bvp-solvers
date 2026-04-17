@@ -51,11 +51,11 @@ def current_integrand_fun(
     """
     
     rho_3 = rho_3_fun()
-    g = green_fun(gamma, gamma_tilde)
-    d_g = green_fun_deriv(gamma, gamma_tilde, w, w_tilde)
+    greens = green_fun(gamma, gamma_tilde)
+    d_greens = green_fun_deriv(gamma, gamma_tilde, w, w_tilde)
 
-    if g.ndim == 2:
-        return np.real(tr(rho_3 @ (g @ d_g - d_g @ g)))
+    if greens.ndim == 2:
+        return np.real(tr(rho_3 @ (greens @ d_greens - d_greens @ greens)))
 
-    commutator = np.einsum('ikn,kjn->ijn', g, d_g, optimize=True) - np.einsum('ikn,kjn->ijn', d_g, g, optimize=True)
+    commutator = np.einsum('ikn,kjn->ijn', greens, d_greens, optimize=True) - np.einsum('ikn,kjn->ijn', d_greens, greens, optimize=True)
     return np.real(np.einsum('iik->k', np.einsum('ij,jkn->ikn', rho_3, commutator, optimize=True), optimize=True))
