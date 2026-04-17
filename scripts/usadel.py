@@ -70,29 +70,25 @@ def t2_i(x, y, l, zeta, delta) -> None:
         )
 
 def t2_j(x, y, l, zeta, delta) -> None:
-    eps_arr_2j = np.array([0, 1, 2])
-    
-     
-    for epsilon in eps_arr_2j:
-        plot_observable(
-            observable = 'dos',
-            variable_plot = 'x',
-            x = x,
-            x_index = -1,
-            y = y,
-            epsilon = epsilon,
-            delta = delta,
-            zeta = zeta,
-            l = l,
-            phi_L = 0,
-            phi_R = 0,
-            superconductor = True,
-            filename = f'2j/dos_eps_{epsilon}'
+    plot_observable(
+        observable = 'dos',
+        variable_plot = 'x',
+        x = x,
+        x_index = -1,
+        y = y,
+        epsilon = 2.0,
+        delta = delta,
+        zeta = zeta,
+        l = l,
+        phi_L = 0,
+        phi_R = 0,
+        superconductor = True,
+        filename = f'2j/dos_eps_{2.0}'
         )
         
 def t2_k(x, y, l,m, zeta, delta) -> None:
     l_arr_2k = np.array([0.5, 1, 2])
-    eps_arr_2k = np.linspace(0, 2, 101)
+    eps_arr_2k = np.linspace(2, 0, 101)
 
     
     for l in l_arr_2k:

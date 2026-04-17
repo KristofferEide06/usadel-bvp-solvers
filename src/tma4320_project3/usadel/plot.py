@@ -162,7 +162,7 @@ def plot_observable(
         raise ValueError("variable_plot must be 'x', 'epsilon', 'delta', 'zeta', 'l', 'phi_L' or 'phi_R'")
     
     if variable_plot == 'epsilon' and observable == 'current':
-        raise ValueError("variable_plot == 'x' or 'epsilon' and observable == 'current' is meaningless combination")
+        raise ValueError("variable_plot == 'epsilon' and observable == 'current' is meaningless combination")
     
     variables = {
         'x': x,
@@ -192,11 +192,38 @@ def plot_observable(
         
         if observable == 'dos':
             y_vals = dos_fun(gamma, gamma_tilde)
+            
         elif observable == 'current_integrand':
             y_vals = current_integrand_fun(gamma, gamma_tilde, w, w_tilde)
+        
+        elif observable == 'current':
+            epsilon_vals = np.linspace(2.0, 0.0, 101)
+            integrand_vals = np.zeros((epsilon_vals.size, x.size), dtype = np.float64)         
+
+            y_current = y.copy()
+    
+            for j, epsilon_val in enumerate(epsilon_vals):
+                epsilon_vars = variables | {'epsilon': epsilon_val, 'y': y_current}
+                gamma, gamma_tilde, w, w_tilde, sol = usadel_solver(**epsilon_vars)
+                    
+                y_current = sol
                 
+                gamma_b = np.moveaxis(gamma, 0, -1)
+                gamma_tilde_b = np.moveaxis(gamma_tilde, 0, -1)
+                w_b = np.moveaxis(w, 0, -1)
+                w_tilde_b = np.moveaxis(w_tilde, 0, -1)
+                    
+                integrand_vals[j] = current_integrand_fun(
+                    gamma_b,
+                    gamma_tilde_b,
+                    w_b,
+                    w_tilde_b
+                )
+            
+            y_vals = - simpson(np.flip(integrand_vals, axis = 0), x = np.flip(epsilon_vals), axis = 0)
+            
     else:
-        dynamic_vals = np.asarray(dynamic_var, dtype = np.float64)
+        dynamic_vals = np.array(dynamic_var, dtype = np.float64)
             
         x_vals = dynamic_var
         y_vals = np.zeros(len(x_vals), dtype = np.float64)
@@ -254,7 +281,7 @@ def plot_observable(
                         w_tilde[x_index]
                     )
                     
-                y_vals[i] = simpson(np.flip(integrand_vals), x = np.flip(epsilon_vals))
+                y_vals[i] = -simpson(np.flip(integrand_vals), x = np.flip(epsilon_vals))
                     
     fig, ax = plt.subplots(figsize = figsize)
     ax.plot(x_vals, y_vals)
