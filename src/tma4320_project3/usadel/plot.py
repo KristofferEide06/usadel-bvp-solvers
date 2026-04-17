@@ -181,6 +181,11 @@ def plot_observable(
     
     if variable_plot == 'x':
         gamma, gamma_tilde, w, w_tilde, _ = usadel_solver(**variables)
+
+        gamma = np.moveaxis(gamma, 0, -1)
+        gamma_tilde = np.moveaxis(gamma_tilde, 0, -1)
+        w = np.moveaxis(w, 0, -1)
+        w_tilde = np.moveaxis(w_tilde, 0, -1)
         
         x_vals = x
         y_vals = np.zeros(len(x), dtype = np.float64)
