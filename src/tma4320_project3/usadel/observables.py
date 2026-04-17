@@ -26,8 +26,11 @@ def dos_fun(
     """
     rho_3 = rho_3_fun()
     greens = green_fun(gamma, gamma_tilde)
-    
-    return np.real(tr(rho_3 @ greens)) / 4
+
+    if greens.ndim == 2:
+        return np.real(tr(rho_3 @ greens)) / 4
+
+    return np.real(np.einsum('iik->k', np.einsum('ij,jkl->ikl', rho_3, greens, optimize=True), optimize=True)) / 4
 
 def current_integrand_fun(
     gamma: npt.NDArray[np.complex128],
@@ -50,5 +53,9 @@ def current_integrand_fun(
     rho_3 = rho_3_fun()
     g = green_fun(gamma, gamma_tilde)
     d_g = green_fun_deriv(gamma, gamma_tilde, w, w_tilde)
-    
-    return np.real(tr(rho_3 @ (g @ d_g - d_g @ g)))
+
+    if g.ndim == 2:
+        return np.real(tr(rho_3 @ (g @ d_g - d_g @ g)))
+
+    commutator = np.einsum('ikn,kjn->ijn', g, d_g, optimize=True) - np.einsum('ikn,kjn->ijn', d_g, g, optimize=True)
+    return np.real(np.einsum('iik->k', np.einsum('ij,jkn->ikn', rho_3, commutator, optimize=True), optimize=True))
