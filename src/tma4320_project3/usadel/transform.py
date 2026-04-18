@@ -10,10 +10,20 @@ def complex_to_real(matrix: npt.NDArray[np.complex128]) -> npt.NDArray[np.float6
     Returns:
         npt.NDArray[np.float64]: flattened real vector of the form v = (real, imag)
     """
-    real_arr = np.real(matrix).flatten()
-    im_arr = np.imag(matrix).flatten()
-    
-    return np.concat((real_arr, im_arr), axis = 0, dtype = np.float64)
+    single = matrix.ndim == 2
+    if single:
+        matrix = matrix[..., np.newaxis]
+
+    N_x = matrix.shape[-1]
+    real_arr = np.real(matrix).reshape(-1, N_x)
+    im_arr = np.imag(matrix).reshape(-1, N_x)
+
+    result = np.concatenate([real_arr, im_arr], axis=0, dtype=np.float64)
+
+    if single: 
+        return result.squeeze(axis=-1)
+    else:
+        return result
 
 def real_to_complex(
     vec: npt.NDArray[np.float64], 
@@ -31,15 +41,25 @@ def real_to_complex(
     Returns:
         npt.NDArray[np.complex128]: complex matrix
     """
-    
-    if len(vec) % 2 != 0:
+    single = vec.ndim == 1
+
+    if single:
+        vec = vec[:, np.newaxis]
+
+    if vec.shape[0] % 2 != 0:
         raise ValueError("Vec must be of even size")
-    
+
     n = len(vec)//2
     real_arr = vec[:n]
     im_arr = vec[n:]
-    
-    return (real_arr + 1j * im_arr).reshape(matrix_shape)
+
+    N_x = vec.shape[1]
+    result = (real_arr + 1j * im_arr).reshape(*matrix_shape, N_x)
+
+    if single: 
+        return result.squeeze(axis=-1)
+    else:
+        return result
 
 def expand_vec(vec_arr: npt.NDArray[np.float64]) -> npt.NDArray[np.float64]:
     """Expands array of real vectors (matrix) to one vector
@@ -94,15 +114,27 @@ def usadel_matrix_to_vec(
     Returns:
         npt.NDArray[np.float64]: expanded real vector
     """
-    if not (gamma.shape == gamma_tilde.shape == w.shape == w_tilde.shape == (2, 2)):
-        raise ValueError("All matrix shapes should be of (2,2)")
+    single = gamma.ndim == 2
 
-    return expand_vec(np.array([
-      complex_to_real(gamma),
-      complex_to_real(gamma_tilde),
-      complex_to_real(w),
-      complex_to_real(w_tilde)  
-    ]))
+    if single:
+        gamma, gamma_tilde, w, w_tilde = (
+            m[..., np.newaxis] for m in [gamma, gamma_tilde, w, w_tilde]
+        )
+
+    if not (gamma.shape == gamma_tilde.shape == w.shape == w_tilde.shape):
+        raise ValueError("All matrices must have the same shape")
+
+    result = np.stack([
+        complex_to_real(gamma),
+        complex_to_real(gamma_tilde),
+        complex_to_real(w),
+        complex_to_real(w_tilde)
+    ], axis=0).reshape(-1, gamma.shape[-1]) 
+
+    if single:
+        return result.squeeze(axis=-1)
+    else:
+        return result
     
 def vec_to_usadel_matrix(
     vec: npt.NDArray[np.float64],
@@ -120,12 +152,24 @@ def vec_to_usadel_matrix(
     Returns:
         npt.NDArray[np.complex128]: array of matrices, where the columns represent gamma, gamma_tilde, w, w_tilde respectively
     """
-    component_size = np.prod(matrix_shape)
-    
-    if len(vec) % component_size != 0:
-        raise ValueError("vector size and matrix_shape not compatible")
-    
-    component_vec_arr = vec.reshape(component_size, -1)
-    
-    return np.array([real_to_complex(component_vec, matrix_shape) for component_vec in component_vec_arr])
+    single = vec.ndim == 1
 
+    if single:
+        vec = vec[:, np.newaxis]
+
+    component_size = np.prod(matrix_shape)
+    N_x = vec.shape[1]
+
+    if vec.shape[0] % component_size != 0:
+        raise ValueError("vector size and matrix_shape not compatible")
+
+    component_vecs = vec.reshape(component_size, -1, N_x)
+    result = np.array([
+        real_to_complex(component_vecs[i], matrix_shape)
+        for i in range(component_size)
+    ])
+
+    if single:
+        return result.squeeze(axis=-1)
+    else:
+        return result

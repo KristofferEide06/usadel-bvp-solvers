@@ -9,40 +9,38 @@ from .transform import (
 )
 
 from .riccati import (
-  N_fun,
-  Riccati_superconductor,
+    N_fun,
+    Riccati_superconductor,
 )
 
-def vec_deriv(
+from .einsum import (
+    bmm
+)
+
+def vec_deriv_vectorized(
     vec: npt.NDArray[np.float64],
     epsilon: float,
-    delta: float
-    ) -> npt.NDArray[np.float64]:
-    """Calcualtes derivative of flattened vector
-
+    delta: float,
+) -> npt.NDArray[np.float64]:
+    """Calculates derivative of a batch of flattened vectors
     Args:
-        vec (npt.NDArray[np.float64]): Flattened vector
-        epsilon (np.float): Quasiparticle excitation energy
-        delta (np.float): Imaginary energy shift
-
+        vec (npt.NDArray[np.float64]): Flattened vector (n_flat, N_x)
+        epsilon (float): Quasiparticle excitation energy
+        delta (float): Imaginary energy shift
     Returns:
-        npt.NDArray[np.float64]: derivative of flattened vector
+        npt.NDArray[np.float64]: derivative of the batch of flattened vectors
     """
-    gamma, gamma_tilde, w, w_tilde = tuple(vec_to_usadel_matrix(vec))
-    
-    N, N_tilde = N_fun(gamma, gamma_tilde)    
-    
+
+    gamma, gamma_tilde, w, w_tilde = vec_to_usadel_matrix(vec)
+
+    N, N_tilde = N_fun(gamma, gamma_tilde)
+
     d_gamma = w
     d_gamma_tilde = w_tilde
-    d_w = -2j * (epsilon + 1j * delta) * gamma - 2 * w @ N_tilde @ gamma_tilde @ w
-    d_w_tilde = -2j * (epsilon + 1j * delta) * gamma_tilde - 2 * w_tilde @ N @ gamma @ w_tilde
+    d_w = (-2j * (epsilon + 1j * delta) * gamma - 2 * bmm(bmm(bmm(w, N_tilde), gamma_tilde), w))
+    d_w_tilde = (-2j * (epsilon + 1j * delta) * gamma_tilde - 2 * bmm(bmm(bmm(w_tilde, N), gamma), w_tilde))
 
-    return usadel_matrix_to_vec(
-        d_gamma,
-        d_gamma_tilde,
-        d_w,
-        d_w_tilde,
-    )
+    return usadel_matrix_to_vec(d_gamma, d_gamma_tilde, d_w, d_w_tilde)
 
 def make_diff_system(
     epsilon: float,
@@ -64,11 +62,7 @@ def make_diff_system(
         x: npt.NDArray[np.float64], 
         vec: npt.NDArray[np.float64]
         ) -> npt.NDArray[np.float64]:
-        result = np.zeros_like(vec)
-        
-        for i in range(len(x)):
-            result[:, i] = vec_deriv(vec[:,i], epsilon , delta)
-        return result
+        return vec_deriv_vectorized(vec, epsilon, delta)
     
     return diff_system
 
@@ -79,7 +73,7 @@ def make_bc(
     l: float,
     phi_L: float,
     phi_R: float,
-    superconductor: bool
+    superconductor: bool,
     ) -> Callable[
     [npt.NDArray[np.float64], npt.NDArray[np.float64]],
     npt.NDArray[np.float64]
@@ -117,12 +111,12 @@ def make_bc(
 
         N_L, N_tilde_L = N_fun(gamma_L, gamma_tilde_L)
         N_R, N_tilde_R = N_fun(gamma_R, gamma_tilde_R)
-        I = np.eye(l_gamma.shape[0])
-        
-        l_w_boundary = l_w + 1/(zeta * l) * (I - l_gamma @ gamma_tilde_L) @ N_L @ (gamma_L - l_gamma)
-        l_w_tilde_boundary = l_w_tilde + 1/(zeta * l) * (I - l_gamma_tilde @ gamma_L) @ N_tilde_L @ (gamma_tilde_L - l_gamma_tilde)
-        r_w_boundary = r_w - 1/(zeta * l) * (I - r_gamma @ gamma_tilde_R) @ N_R @ (gamma_R - r_gamma)
-        r_w_tilde_boundary = r_w_tilde - 1/(zeta * l) * (I - r_gamma_tilde @ gamma_R) @ N_tilde_R @ (gamma_tilde_R - r_gamma_tilde)
+        I = np.eye(2, dtype=np.complex128)
+
+        l_w_boundary = (l_w + 1/(zeta * l) * (I - l_gamma @ gamma_tilde_L) @ N_L @ (gamma_L - l_gamma))
+        l_w_tilde_boundary = (l_w_tilde + 1/(zeta * l) * (I - l_gamma_tilde @ gamma_L) @ N_tilde_L @ (gamma_tilde_L - l_gamma_tilde))
+        r_w_boundary = (r_w - 1/(zeta * l) * (I - r_gamma @ gamma_tilde_R) @ N_R @ (gamma_R - r_gamma))
+        r_w_tilde_boundary = (r_w_tilde - 1/(zeta * l) * (I - r_gamma_tilde @ gamma_R) @ N_tilde_R @ (gamma_tilde_R - r_gamma_tilde))
         
         return usadel_matrix_to_vec(l_w_boundary, l_w_tilde_boundary, r_w_boundary, r_w_tilde_boundary)
     
@@ -137,7 +131,7 @@ def usadel_solver(
     l: float,
     phi_L: float,
     phi_R: float,
-    superconductor: bool
+    superconductor: bool,
     ) -> tuple[
         npt.NDArray[np.complex128],
         npt.NDArray[np.complex128],
@@ -174,12 +168,12 @@ def usadel_solver(
     )  
     
     sol = solution.sol(x)
-    m = sol.shape[1]
-    
-    gamma_arr, gamma_tilde_arr, w_arr, w_tilde_arr = tuple([np.empty((m, 2, 2), dtype = np.complex128) for i in range(4)])
-    
-    for j in range(m):
-        gamma_arr[j], gamma_tilde_arr[j], w_arr[j], w_tilde_arr[j] = vec_to_usadel_matrix(sol[:, j])
+    matrices = vec_to_usadel_matrix(sol)
+
+    gamma_arr = np.moveaxis(matrices[0], -1, 0)
+    gamma_tilde_arr = np.moveaxis(matrices[1], -1, 0)
+    w_arr = np.moveaxis(matrices[2], -1, 0)
+    w_tilde_arr = np.moveaxis(matrices[3], -1, 0)
 
     return gamma_arr, gamma_tilde_arr, w_arr, w_tilde_arr, sol
   
