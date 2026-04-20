@@ -137,8 +137,8 @@ def green_fun(
     if single:
         I = np.eye(2, dtype=np.complex128)
         return np.block([
-            [2*N - I, 2 * N @ gamma],
-            [-2 * N_tilde @ gamma_tilde, -2*N_tilde + I]
+            [2*N - I, bmm(2 * N, gamma)],
+            [bmm(-2 * N_tilde, gamma_tilde), -2*N_tilde + I]
         ])
     else:
         N_x = gamma.shape[-1]
@@ -173,8 +173,8 @@ def green_fun_deriv(
 
     if single:
         return 2 * np.block([
-            [d_N, N @ w + d_N @ gamma],
-            [-N_tilde @ w_tilde - d_N_tilde @ gamma_tilde, -d_N_tilde]
+            [d_N, bmm(N, w) + bmm(d_N, gamma)],
+            [-bmm(N_tilde, w_tilde) - bmm(d_N_tilde, gamma_tilde), -d_N_tilde]
         ])
     else:
         first_row = np.concatenate([2*d_N, 2*(bmm(N, w) + bmm(d_N, gamma))], axis=1)

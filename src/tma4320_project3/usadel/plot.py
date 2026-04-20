@@ -113,6 +113,7 @@ def plot_usadel_sol(
     
     #codex 
     fig.savefig(save_path, dpi=300, bbox_inches="tight")
+    plt.close(fig)
     
 def plot_observable(
     observable: Literal['dos', 'current', 'current_integrand'],
@@ -318,3 +319,4 @@ def plot_observable(
     #codex
     
     fig.savefig(save_path, dpi=300, bbox_inches="tight")
+    plt.close(fig)

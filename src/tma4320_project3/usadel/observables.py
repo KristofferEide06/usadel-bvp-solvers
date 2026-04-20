@@ -8,6 +8,7 @@ from .riccati import(
 )
 
 from .einsum import(
+    bmm,
     tr
 )
 
@@ -27,10 +28,7 @@ def dos_fun(
     rho_3 = rho_3_fun()
     greens = green_fun(gamma, gamma_tilde)
 
-    if greens.ndim == 2:
-        return np.real(tr(rho_3 @ greens)) / 4
-
-    return np.real(np.einsum('iik->k', np.einsum('ij,jkl->ikl', rho_3, greens, optimize=True), optimize=True)) / 4
+    return np.real(tr(bmm(rho_3, greens))) / 4
 
 def current_integrand_fun(
     gamma: npt.NDArray[np.complex128],
@@ -49,13 +47,9 @@ def current_integrand_fun(
     Returns:
         np.float64: current integrand
     """
-    
     rho_3 = rho_3_fun()
     greens = green_fun(gamma, gamma_tilde)
     d_greens = green_fun_deriv(gamma, gamma_tilde, w, w_tilde)
-
-    if greens.ndim == 2:
-        return np.real(tr(rho_3 @ (greens @ d_greens - d_greens @ greens)))
-
-    commutator = np.einsum('ikn,kjn->ijn', greens, d_greens, optimize=True) - np.einsum('ikn,kjn->ijn', d_greens, greens, optimize=True)
-    return np.real(np.einsum('iik->k', np.einsum('ij,jkn->ikn', rho_3, commutator, optimize=True), optimize=True))
+    commutator = bmm(greens, d_greens) - bmm(d_greens, greens)
+    
+    return np.real(tr(bmm(rho_3, commutator)))
