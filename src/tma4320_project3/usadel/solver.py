@@ -113,10 +113,10 @@ def make_bc(
         N_R, N_tilde_R = N_fun(gamma_R, gamma_tilde_R)
         I = np.eye(2, dtype=np.complex128)
 
-        l_w_boundary = (l_w + 1/(zeta * l) * (I - l_gamma @ gamma_tilde_L) @ N_L @ (gamma_L - l_gamma))
-        l_w_tilde_boundary = (l_w_tilde + 1/(zeta * l) * (I - l_gamma_tilde @ gamma_L) @ N_tilde_L @ (gamma_tilde_L - l_gamma_tilde))
-        r_w_boundary = (r_w - 1/(zeta * l) * (I - r_gamma @ gamma_tilde_R) @ N_R @ (gamma_R - r_gamma))
-        r_w_tilde_boundary = (r_w_tilde - 1/(zeta * l) * (I - r_gamma_tilde @ gamma_R) @ N_tilde_R @ (gamma_tilde_R - r_gamma_tilde))
+        l_w_boundary = (l_w + 1/(zeta * l) * bmm(bmm((I - bmm(l_gamma, gamma_tilde_L)), N_L), (gamma_L - l_gamma)))
+        l_w_tilde_boundary = (l_w_tilde + 1/(zeta * l) * bmm(bmm((I - bmm(l_gamma_tilde, gamma_L)), N_tilde_L), (gamma_tilde_L - l_gamma_tilde)))
+        r_w_boundary = (r_w - 1/(zeta * l) * bmm(bmm((I - bmm(r_gamma, gamma_tilde_R)), N_R), (gamma_R - r_gamma)))
+        r_w_tilde_boundary = (r_w_tilde - 1/(zeta * l) * bmm(bmm((I - bmm(r_gamma_tilde, gamma_R)), N_tilde_R), (gamma_tilde_R - r_gamma_tilde)))
         
         return usadel_matrix_to_vec(l_w_boundary, l_w_tilde_boundary, r_w_boundary, r_w_tilde_boundary)
     
