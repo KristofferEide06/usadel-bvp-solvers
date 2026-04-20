@@ -27,7 +27,22 @@ def t2_g(x, y, l, zeta, delta) -> None:
             phi_R = 0,
             superconductor = False,
             matrix_label = 'gamma',
-            filename = f'2g/gamma_component_eps_{epsilon}',
+            filename = f'2g/gamma_component_eps_{epsilon}.png',
+        )
+
+    for epsilon in eps_arr_2g:
+        plot_usadel_sol(
+            x,
+            y,
+            epsilon,
+            delta,
+            zeta,
+            l,
+            phi_L = 0,
+            phi_R = 0,
+            superconductor = False,
+            matrix_label = 'gamma_tilde',
+            filename = f'2g/gamma_tilde_component_eps_{epsilon}.png',
         )
     
 def t2_h(x, y, l, zeta, delta) -> None:
@@ -48,7 +63,7 @@ def t2_h(x, y, l, zeta, delta) -> None:
             phi_L = 0,
             phi_R = 0,
             superconductor = False,
-            filename = f'2h/dos_eps_{epsilon}'
+            filename = f'2h/dos_eps_{epsilon}.png'
         )
 
 def t2_i(x, y, l, zeta, delta) -> None:
@@ -66,25 +81,27 @@ def t2_i(x, y, l, zeta, delta) -> None:
             phi_R = 0,
             superconductor = True,
             matrix_label = 'gamma',
-            filename = f'2i/gamma_component_eps_{epsilon}',
+            filename = f'2i/gamma_component_eps_{epsilon}.png',
         )
 
 def t2_j(x, y, l, zeta, delta) -> None:
+    eps = 2.0
+
     plot_observable(
         observable = 'dos',
         variable_plot = 'x',
         x = x,
         x_index = -1,
         y = y,
-        epsilon = 2.0,
+        epsilon = eps,
         delta = delta,
         zeta = zeta,
         l = l,
         phi_L = 0,
         phi_R = 0,
         superconductor = True,
-        filename = f'2j/dos_eps_{2.0}'
-        )
+        filename = f'2j/dos_eps_{eps}.png'
+    )
         
 def t2_k(x, y, l,m, zeta, delta) -> None:
     l_arr_2k = np.array([0.5, 1, 2])
@@ -136,23 +153,39 @@ def t2_m(x, y, l, zeta, delta) -> None:
     x_index = len(x)//2
     
     plot_observable(
-            observable = 'current_integrand',
-            variable_plot = 'epsilon',
-            x = x,
-            x_index = x_index,
-            y = y,
-            epsilon = epsilon_arr,
-            delta = delta,
-            zeta = zeta,
-            l = l,
-            phi_L = 1,
-            phi_R = 0,
-            superconductor = True,
-            filename = f'2m/current_int_eps.png'
-        )
-    
+        observable = 'current_integrand',
+        variable_plot = 'epsilon',
+        x = x,
+        x_index = x_index,
+        y = y,
+        epsilon = epsilon_arr,
+        delta = delta,
+        zeta = zeta,
+        l = l,
+        phi_L = 1,
+        phi_R = 0,
+        superconductor = True,
+        filename = f'2m/current_int_eps.png'
+    )
+
+    plot_observable(
+        observable = 'current_integrand',
+        variable_plot = 'x',
+        x = x,
+        x_index = 0,
+        y = y,
+        epsilon = 1,
+        delta = delta,
+        zeta = zeta,
+        l = l,
+        phi_L = 1,
+        phi_R = 0,
+        superconductor = True,
+        filename = f'2m/current_int_x.png'
+    )
+        
 def t2_n(x, y, l, zeta, delta) -> None:
-    phi_L_arr_2n = np.linspace(0, 2 * np.pi, 15) #update to contain more pointsa after optimizing runtime
+    phi_L_arr_2n = np.linspace(0, 2 * np.pi, 50) #update to contain more points after optimizing runtime
     x_index = len(x)//2
     
     plot_observable(
