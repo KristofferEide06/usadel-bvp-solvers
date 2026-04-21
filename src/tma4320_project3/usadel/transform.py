@@ -92,7 +92,7 @@ def reshape_vec(
     if len(vec) % vec_size != 0:
         raise ValueError("Vec must be divisible by vec_size")
 
-    return vec.reshape(vec_size, -1)
+    return vec.reshape(-1, vec_size)
 
 def usadel_matrix_to_vec(
     gamma: npt.NDArray[np.complex128], 
