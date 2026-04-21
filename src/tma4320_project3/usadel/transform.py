@@ -139,7 +139,12 @@ def usadel_matrix_to_vec(
 def vec_to_usadel_matrix(
     vec: npt.NDArray[np.float64],
     matrix_shape: tuple[int, ...] = (2, 2),
-    ) -> npt.NDArray[np.complex128]:
+    ) -> tuple[
+        npt.NDArray[np.complex128],
+        npt.NDArray[np.complex128],
+        npt.NDArray[np.complex128],
+        npt.NDArray[np.complex128],
+    ]:
     """Transform vector into the usadel matrices, gamma, gamma_tilde, w, w_tilde
 
     Args:
@@ -150,26 +155,33 @@ def vec_to_usadel_matrix(
         ValueError: Matrix_shape should be so that vec can be divided into equally shaped matrices
 
     Returns:
-        npt.NDArray[np.complex128]: array of matrices, where the columns represent gamma, gamma_tilde, w, w_tilde respectively
+        tuple[npt.NDArray[np.complex128], npt.NDArray[np.complex128], npt.NDArray[np.complex128], npt.NDArray[np.complex128]]:  gamma, gamma_tilde, w, w_tilde
     """
     single = vec.ndim == 1
 
     if single:
         vec = vec[:, np.newaxis]
 
-    component_size = np.prod(matrix_shape)
+    component_len = 2 * np.prod(matrix_shape)
+    expected_len = 4 * component_len
+    
     N_x = vec.shape[1]
 
-    if vec.shape[0] % component_size != 0:
+    if vec.shape[0] != expected_len:
         raise ValueError("vector size and matrix_shape not compatible")
 
-    component_vecs = vec.reshape(component_size, -1, N_x)
-    result = np.array([
-        real_to_complex(component_vecs[i], matrix_shape)
-        for i in range(component_size)
-    ])
+    blocks = vec.reshape(4, component_len, N_x)
+    
+    gamma = real_to_complex(blocks[0], matrix_shape)
+    gamma_tilde = real_to_complex(blocks[1], matrix_shape)
+    w = real_to_complex(blocks[2], matrix_shape)
+    w_tilde = real_to_complex(blocks[3], matrix_shape)
 
     if single:
-        return result.squeeze(axis=-1)
-    else:
-        return result
+        return (
+            gamma.squeeze(axis = -1),
+            gamma_tilde.squeeze(axis = -1),
+            w.squeeze(axis = -1),
+            w_tilde.squeeze(axis = -1)
+        )
+    return gamma, gamma_tilde, w, w_tilde
