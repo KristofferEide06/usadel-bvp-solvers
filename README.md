@@ -1,6 +1,17 @@
-# Project 3 in TMA4320 - Introduction To Scientific Computations
+# Usadel BVP Solvers
 
-This project solves the Usadel equations to model the Josephson effect. It also implements an adaptive Runge–Kutta (RK32) method and the shooting method for solving boundary value problems.
+Numerical solution of the Usadel equations for modelling the Josephson effect.
+
+The project implements an adaptive RK32 Runge–Kutta method and a shooting method for boundary value problems, which are then applied to the Usadel equations.
+
+The main analysis is available in [`assignments/project3.ipynb`](assignments/project3.ipynb), while the numerical implementation is organized under `src/`.
+
+## Run
+
+```bash
+uv sync
+uv run python scripts/usadel.py
+```
 
 ## Authors
 
@@ -9,3 +20,4 @@ This project solves the Usadel equations to model the Josephson effect. It also 
 - Samuel Vasshus
 - Elias Veines-Jensen
 
+TMA4320 – Introduction to Scientific Computing
